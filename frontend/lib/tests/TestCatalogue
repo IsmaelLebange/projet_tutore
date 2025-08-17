@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import '../ecrans/PageCatalogue.dart'; 
+import '../composants/ListeAnnonces.dart';
+import '../composants/CarteProduit.dart';
+import '../composants/CarteService.dart';
+import '../models/Produit.dart';
+
+class TestCatalogue extends StatelessWidget {
+  final List<Map<String, dynamic>> annoncesMock = [
+  {
+    'type': 'produit',
+    'id': 1,
+    'titre': 'Lenovo ThinkPad',
+    'description': 'Ordinateur portable 14 pouces',
+    'prix': 200000,
+    'image': 'https://via.placeholder.com/150',
+  },
+  {
+    'type': 'service',
+    'titre': 'Cours de Piano',
+    'description': 'Apprenez le piano rapidement',
+    'prix': 5000,
+  },
+  {
+    'type': 'produit',
+    'id': 2,
+    'titre': 'RTX 3060',
+    'description': 'Carte graphique neuve',
+    'prix': 150000,
+    'image': 'https://via.placeholder.com/150',
+  },
+];
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: PageCatalogue(
+          titrePage: 'Test Annonces',
+          annonces: annoncesMock,
+        ),
+      ),
+    );
+  }
+}

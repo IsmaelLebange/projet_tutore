@@ -2,22 +2,35 @@
   {
     "id": 1,
     "titre": "Lenovo ThinkPad T470",
+    "type": "Produit",
     "description": "i5 7ème gen, 8Go, 512Go SSD",
+    "typeProduit":"electronique",
+    "categorieProduit": "telephone",
     "prix": 200000,
+    
     "image": "https://via.placeholder.com/150"
   },
   {
     "id": 2,
     "titre": "RTX 3060 12GB",
+    "type": "Produit",
     "description": "Carte graphique neuve",
+    "typeProduit":"electronique",
+    "categorieProduit": "carte graphique",
     "prix": 150000,
+    
     "image": "https://via.placeholder.com/150"
   },
   {
     "id": 3,
     "titre": "PC Gamer Ryzen 7",
+    "type": "Produit",
     "description": "32 Go DDR5 / 2 To SSD",
+    "typeProduit":"electronique",
+    "categorieProduit": "ordinateur",
     "prix": 1400000,
-    "image": "https://via.placeholder.com/150"
+    
+    "image": "http://googleusercontent.com/image_collection/image_retrieval/1620065907992592671_0"
   }
 ]
+

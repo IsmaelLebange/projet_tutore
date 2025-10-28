@@ -1,0 +1,21 @@
+[
+  {
+    "type": "service",
+    "titre": "Cours de Piano",
+    
+    "description": "Apprenez le piano rapidement",
+    "typeService":"formation",
+    "categorieService":"cours particulier",
+    "prix": 5000,
+    "image": "https://via.placeholder.com/150"
+  },
+  {
+    "type": "service",
+    "titre": "Cours de guitare",
+    "description": "Débutant à avancé",
+    "typeService":"formation",
+    "categorieService":"cours particulier",
+    "prix": 7000,
+    "image": "https://via.placeholder.com/150"
+  }
+]

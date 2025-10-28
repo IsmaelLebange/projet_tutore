@@ -1,55 +1,131 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ecrans/CatalogueProduits.dart';
+import 'package:frontend/ecrans/AjoutAnnonce.dart';
+import 'package:frontend/ecrans/Connexion.dart';
+import 'package:frontend/ecrans/Discussion.dart';
+import 'package:frontend/ecrans/GestionAnnoncesAdmin.dart';
+import 'package:frontend/ecrans/GestionUtilisateursAdmin.dart';
+import 'package:frontend/ecrans/Inscription.dart';
+import 'package:frontend/ecrans/MesAnnonces.dart';
+import 'package:frontend/ecrans/ModerationLitigesAdmin.dart';
+import 'package:frontend/ecrans/StatistiquesAdmin.dart';
+import 'package:frontend/models/Annonce.dart';
 import '../ecrans/Accueil.dart';
-import '../tests/TestCatalogue';
-import '../ecrans/ProfilUtilisateur.dart';
 import '../ecrans/CatalogueProduits.dart';
+import '../ecrans/CatalogueServices.dart';
+import '../ecrans/ProfilUtilisateur.dart';
+import '../ecrans/Parametres.dart';
+import '../ecrans/Messagerie.dart';
+import '../ecrans/Favoris.dart';
+import '../ecrans/Panier.dart';
+import '../ecrans/Administration.dart';
+
 
 class NavigateurPrincipal extends StatefulWidget {
-  const NavigateurPrincipal({super.key});
-
   @override
-  State<NavigateurPrincipal> createState() => _NavigateurPrincipalState();
+  _NavigateurPrincipalState createState() => _NavigateurPrincipalState();
 }
 
 class _NavigateurPrincipalState extends State<NavigateurPrincipal> {
-  int _indexActuel = 0;
+  Widget _pageActuelle = Accueil();
 
-  final List<Widget> _ecrans = [
-    CatalogueProduits(),
-    const Accueil(),
-    const ProfilUtilisateur(),
-  ];
-
-  void _changerOnglet(int index) {
+  void _changerPage(Widget nouvellePage) {
     setState(() {
-      _indexActuel = index;
+      _pageActuelle = nouvellePage;
     });
+    Navigator.of(context).pop(); // ferme le drawer
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _ecrans[_indexActuel],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _indexActuel,
-        onTap: _changerOnglet,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Catalogue',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
+      body: _pageActuelle,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text("Menu Principal", style: TextStyle(color: Colors.white, fontSize: 20)),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text("Accueil"),
+              onTap: () => _changerPage(Accueil()),
+            ),
+            ListTile(
+              leading: Icon(Icons.shopping_bag),
+              title: Text("Produits"),
+              onTap: () => _changerPage(CatalogueProduits()),
+            ),
+            ListTile(
+              leading: Icon(Icons.build),
+              title: Text("Services"),
+              onTap: () => _changerPage(CatalogueServices()),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text("Profil"),
+              onTap: () => _changerPage(ProfilUtilisateur()),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Connexion"),
+              onTap: () => _changerPage(Connexion()),
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text("Inscription"),
+              onTap: () => _changerPage(Inscription()),
+            ),
+            ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text("Favoris"),
+              onTap: () => _changerPage(AjoutAnnonce()),
+            ),
+            ListTile(
+              leading: Icon(Icons.shopping_cart),
+              title: Text("Panier"),
+              onTap: () => _changerPage(Panier()),
+            ),
+
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text("Messagerie"),
+              onTap: () => _changerPage(Messagerie()),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Mes annonces"),
+              onTap: () => _changerPage(MesAnnonces()),
+            ),
+            ListTile(
+              leading: Icon(Icons.admin_panel_settings),
+              title: Text("Administration"),
+              onTap: ()=>_changerPage(Administration())
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text("Gestion Annonces"),
+              onTap: () => _changerPage(GestionAnnoncesAdmin()),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text("Gestion Utilisateurs"),
+              onTap: () => _changerPage(GestionUtilisateursAdmin()),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text("Statistiques Admin"),
+              onTap: () => _changerPage(StatistiquesAdmin()),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text("Modération Litiges"),
+              onTap: () => _changerPage(ModerationLitigesAdmin()),
+            ),
+            
+          ],
+        ),
       ),
     );
   }

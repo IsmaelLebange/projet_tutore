@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api.dart';
 import '../models/Produit.dart';
-import '../composants/CarteProduit.dart';
 import 'PageCatalogue.dart'; 
 
 class CatalogueProduits extends StatefulWidget {
@@ -23,6 +22,7 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
     return FutureBuilder<List<Produit>>(
       future: produits,
       builder: (context, snapshot) {
+        
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: Text("Catalogue Produits")),
@@ -43,10 +43,12 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
         // ✅ On passe les produits au PageCatalogue
         final annonces = snapshot.data!
             .map((p) => {
-                  "type": "produit",
+                  "type": "Produit",
                   "id": p.id,
                   "titre": p.titre,
                   "description": p.description,
+                  "typeProduit":p.typeProduit,
+                  "categorieProduit":p.categorieProduit,
                   "prix": p.prix,
                   "image": p.image,
                 })

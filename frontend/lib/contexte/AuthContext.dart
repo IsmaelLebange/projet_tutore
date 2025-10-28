@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import '../models/Utilisateur.dart';
 
-class Authcontext extends ChangeNotifier{
-  bool _estConnecte=false;
-  Map<String, dynamic>? _utilisateur;
+class AuthContext extends InheritedWidget {
+  final Utilisateur? utilisateur;
+  final Function deconnexion;
 
-  bool get estConnecte=> _estConnecte;
-  Map<String, dynamic>? get utilisateur => _utilisateur;
+  const AuthContext({
+    super.key,
+    required this.utilisateur,
+    required this.deconnexion,
+    required super.child,
+  });
 
-  void connecter(Map<String, dynamic>userData){
-    _estConnecte;
-    _utilisateur=userData;
-    notifyListeners();
+  static AuthContext of(BuildContext context) {
+    final AuthContext? result =
+        context.dependOnInheritedWidgetOfExactType<AuthContext>();
+    assert(result != null, 'No AuthContext found in context');
+    return result!;
   }
 
-  void deconnecter(){
-    _estConnecte=false;
-    _utilisateur=null;
-    notifyListeners();
-  }
+  @override
+  bool updateShouldNotify(AuthContext oldWidget) =>
+      utilisateur != oldWidget.utilisateur;
 }

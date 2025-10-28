@@ -1,4 +1,8 @@
+// DANS Accueil.dart
+
 import 'package:flutter/material.dart';
+// L'import de BarrePrincipale.dart contient maintenant MenuPrincipal.
+import 'package:frontend/composants/BarrePrincipale.dart'; 
 import '../composants/ChampRecherche.dart';
 import '../composants/BarreCategories.dart';
 import '../composants/SectionTendance.dart';
@@ -8,28 +12,39 @@ import '../composants/TitreSection.dart';
 class Accueil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // ✅ Données mock pour tester (gardées pour contexte)
+    final categories = ["Électronique", "Mode", "Maison", "Services"];
+    final List<Map<String, dynamic>> annonces = [
+      // ... Tes annonces ici
+    ];
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Accueil"),
-        centerTitle: true,
-      ),
+      // 🚨 UTILISATION DE TA BARRE PRINCIPALE
+      appBar: const BarrePrincipale(titre: "Accueil"), 
+      
+      // 🚨 UTILISATION DE TON MENU PRINCIPAL
+      // Assumes que MenuPrincipal est accessible ici, soit via un import implicite, soit dans BarrePrincipale.dart
+      drawer: MenuPrincipal(),
+      
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ChampRecherche(), // 🔎 recherche
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            BarreCategories(), // 📂 catégories
-            SizedBox(height: 24),
+            // ✅ On passe les catégories
+            BarreCategories(categories: categories),
+            const SizedBox(height: 24),
 
-            TitreSection(titre: "Tendance 🔥"),
+            const TitreSection(titre: "Tendance 🔥"),
             SectionTendance(), // ⭐ produits populaires
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-            TitreSection(titre: "Dernières annonces 🛒"),
-            ListeAnnonces(), // 📋 liste produits
+            const TitreSection(titre: "Dernières annonces 🛒"),
+            // ✅ On passe la liste des annonces
+            ListeAnnonces(annonces: annonces),
           ],
         ),
       ),

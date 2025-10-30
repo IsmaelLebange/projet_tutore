@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/Service.dart';
-import '../ecrans/DetailsService.dart';
+import '../ecrans/annonces/DetailsService.dart';
 
 class CarteService extends StatelessWidget {
   final Service service;

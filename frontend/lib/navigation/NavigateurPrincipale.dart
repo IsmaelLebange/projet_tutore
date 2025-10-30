@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ecrans/AjoutAnnonce.dart';
-import 'package:frontend/ecrans/Connexion.dart';
-import 'package:frontend/ecrans/Discussion.dart';
-import 'package:frontend/ecrans/GestionAnnoncesAdmin.dart';
-import 'package:frontend/ecrans/GestionUtilisateursAdmin.dart';
-import 'package:frontend/ecrans/Inscription.dart';
-import 'package:frontend/ecrans/MesAnnonces.dart';
-import 'package:frontend/ecrans/ModerationLitigesAdmin.dart';
-import 'package:frontend/ecrans/StatistiquesAdmin.dart';
+import 'package:frontend/ecrans/annonces/AjoutAnnonce.dart';
+import 'package:frontend/ecrans/authentification/Connexion.dart';
+import 'package:frontend/ecrans/message/Discussion.dart';
+import 'package:frontend/ecrans/administration/GestionAnnoncesAdmin.dart';
+import 'package:frontend/ecrans/administration/GestionUtilisateursAdmin.dart';
+import 'package:frontend/ecrans/authentification/Inscription.dart';
+import 'package:frontend/ecrans/annonces/MesAnnonces.dart';
+import 'package:frontend/ecrans/administration/ModerationLitigesAdmin.dart';
+import 'package:frontend/ecrans/administration/StatistiquesAdmin.dart';
 import 'package:frontend/models/Annonce.dart';
 import '../ecrans/Accueil.dart';
-import '../ecrans/CatalogueProduits.dart';
-import '../ecrans/CatalogueServices.dart';
+import '../ecrans/annonces/CatalogueProduits.dart';
+import '../ecrans/annonces/CatalogueServices.dart';
 import '../ecrans/ProfilUtilisateur.dart';
 import '../ecrans/Parametres.dart';
-import '../ecrans/Messagerie.dart';
+import '../ecrans/message/Messagerie.dart';
 import '../ecrans/Favoris.dart';
 import '../ecrans/Panier.dart';
-import '../ecrans/Administration.dart';
+import '../ecrans/administration/Administration.dart';
 
 
 class NavigateurPrincipal extends StatefulWidget {

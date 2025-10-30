@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/AdminGate.dart';
-import '../composants/BarrePrincipale.dart';
-import '../models/Annonce.dart';
+import '../../composants/BarrePrincipale.dart';
+import '../../models/Annonce.dart';
 // Note: Tu devras ajuster les imports Produit et Service si nécessaire
 // import '../models/Produit.dart'; 
 // import '../models/Service.dart'; 

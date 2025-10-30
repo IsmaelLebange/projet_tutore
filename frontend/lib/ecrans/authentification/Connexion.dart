@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/composants/BarrePrincipale.dart';
 import 'package:frontend/services/administration/adminService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../composants/ChampTexte.dart';
-import '../composants/BoutonPrincipal.dart';
-import '../services/authService.dart';
+import '../../composants/ChampTexte.dart';
+import '../../composants/BoutonPrincipal.dart';
+import '../../services/authService.dart';
 
 class Connexion extends StatefulWidget {
   Connexion({super.key});

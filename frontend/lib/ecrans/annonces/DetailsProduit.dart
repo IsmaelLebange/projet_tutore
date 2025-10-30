@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/Service.dart';
-import '../composants/BarrePrincipale.dart';
+import '../../models/Produit.dart';
+import '../../composants/BarrePrincipale.dart';
 
-class DetailsService extends StatelessWidget {
-  final Service service;
+class DetailsProduit extends StatelessWidget {
+  final Produit produit;
 
-  const DetailsService({super.key, required this.service});
+  const DetailsProduit({super.key, required this.produit});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class DetailsService extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 1,
         title: Text(
-          service.titre,
+          produit.titre,
           style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -25,15 +25,17 @@ class DetailsService extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black54),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        // Actions potentielles : bouton "Contacter l'annonceur"
+        actions: const [],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image du service
+            // Image principale du produit
             Image.network(
-              service.image,
+              produit.image,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -41,14 +43,14 @@ class DetailsService extends StatelessWidget {
             const SizedBox(height: 16),
             // Titre et prix
             Text(
-              service.titre,
+              produit.titre,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              '${service.prix} €',
+              '${produit.prix} €',
               style: const TextStyle(
                 fontSize: 20,
                 color: Colors.green,
@@ -56,40 +58,16 @@ class DetailsService extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Disponibilité
-            Row(
-              children: [
-                Icon(
-                  (service.disponibilite ?? false)
-                    ? Icons.check_circle 
-                    : Icons.cancel,
-                  color: (service.disponibilite ?? false)
-                    ? Colors.green 
-                    : Colors.red,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  (service.disponibilite ?? false)
-                    ? 'Disponible' 
-                    : 'Non disponible',
-                  style: TextStyle(
-                    color: (service.disponibilite ?? false)
-                      ? Colors.green 
-                      : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             // Description
             const Text(
-              'Description du service',
+              'Description',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(service.description),
+            Text(produit.description),
+            // Ajouter d'autres détails spécifiques au produit ici
           ],
         ),
       ),

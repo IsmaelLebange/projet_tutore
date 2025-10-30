@@ -10,7 +10,7 @@ class Utilisateur {
   final String? motDePasse; 
   final String? typeConnexion;
   final DateTime? dateCreation;
-  final bool actif;
+  final String etat;
   final Adresse? adresse;  
   final String? role; 
 
@@ -24,15 +24,15 @@ class Utilisateur {
     this.motDePasse,
     this.typeConnexion,
     this.dateCreation,
-    required this.actif,
+    required this.etat,
     this.adresse, 
     this.role,
   });
 
   factory Utilisateur.fromJson(Map<String, dynamic> json) {
     // Tente d'extraire nom et prénom séparément, sinon utilise nomComplet
-    final nom = json['nom'] ;
-    final prenom = json['prenom'] ;
+    final nom = (json['nom'] ?? '') as String;
+    final prenom = (json['prenom'] ?? '') as String;
 
     final adresseJson = json['adresse_fixe'] as Map<String, dynamic>?;
     
@@ -52,7 +52,7 @@ class Utilisateur {
       typeConnexion: json['type_connexion'] ?? json['typeConnexion'] ?? 'classique',
       dateCreation:
           DateTime.tryParse(json['date_inscription'] ?? json['dateCreation'] ?? '') ?? DateTime.now(),
-      actif: json['actif'] ?? true,
+      etat: json['etat'] ?? "Actif",
       adresse: adresseJson != null ? Adresse.fromJson(adresseJson) : null,
       role: json['role'] ?? 'utilisateur',
     );
@@ -72,7 +72,7 @@ class Utilisateur {
       'motDePasse': motDePasse,
       'typeConnexion': typeConnexion,
       'dateCreation': dateCreation?.toIso8601String(),
-      'actif': actif,
+      'etat': etat?? "Actif",
       'adresse_fixe': adresse?.toJson(),
       'role':role,
     };
@@ -95,7 +95,7 @@ class Utilisateur {
       motDePasse: null, 
       typeConnexion: 'google',
       dateCreation: DateTime.now(),
-      actif: true,
+      etat: "Actif",
       adresse: null, 
     );
   }
@@ -117,7 +117,7 @@ class Utilisateur {
       motDePasse: null,
       typeConnexion: 'facebook',
       dateCreation: DateTime.now(),
-      actif: true,
+      etat: "Actif",
       adresse: null,
     );
   }

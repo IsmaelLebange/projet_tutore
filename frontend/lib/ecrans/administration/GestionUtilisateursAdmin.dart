@@ -1,9 +1,9 @@
 // GestionUtilisateursAdmin.dart
 import 'package:flutter/material.dart';
-import '../composants/BarrePrincipale.dart';
-import '../composants/AdminGate.dart';
-import '../services/administration/gestionUtilisateurService.dart';
-import '../models/Utilisateur.dart';
+import '../../composants/BarrePrincipale.dart';
+import '../../composants/AdminGate.dart';
+import '../../services/administration/gestionUtilisateurService.dart';
+import '../../models/Utilisateur.dart';
 
 class GestionUtilisateursAdmin extends StatefulWidget {
   const GestionUtilisateursAdmin({super.key});
@@ -27,13 +27,26 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
 
   Future<void> _chargerUtilisateurs() async {
     try {
+      
       final users = await _service.getUtilisateurs();
+      
       setState(() {
         _utilisateurs = users;
         _loading = false;
       });
+      
     } catch (e) {
-      print('Erreur chargement utilisateurs: $e');
+      
+      
+      if (mounted) { 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur de chargement des utilisateurs: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      
       setState(() => _loading = false);
     }
   }
@@ -97,12 +110,18 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
   }
 
   @override
+  // Dans GestionUtilisateursAdmin.dart - modifier la méthode build
+  @override
   Widget build(BuildContext context) {
     return AdminGate(
       child: Scaffold(
+        // ... reste du code
         appBar: const BarrePrincipale(titre: "Gérer les Utilisateurs"),
+        drawer: MenuPrincipal(),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
+            : _utilisateurs.isEmpty
+            ? const Center(child: Text('Aucun utilisateur trouvé'))
             : Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
@@ -110,17 +129,18 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
                     padding: const EdgeInsets.all(16.0),
                     child: ListView(
                       children: _utilisateurs.map((user) {
-                        final actif = user.actif;
+                        // CORRECTION: utiliser user.etat au lieu de user.actif
+                        final estActif = user.etat == 'Actif';
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8),
                           child: ListTile(
                             leading: Icon(
-                              actif ? Icons.person : Icons.person_off,
-                              color: actif ? Colors.green : Colors.red,
+                              estActif ? Icons.person : Icons.person_off,
+                              color: estActif ? Colors.green : Colors.red,
                             ),
                             title: Text('${user.prenom} ${user.nom}'),
                             subtitle: Text(
-                              "${user.email} | Rôle: ${user.role ?? 'utilisateur'}",
+                              "${user.email} | Rôle: ${user.role} | État: ${user.etat}",
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -133,7 +153,7 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
                                   onPressed: () => _showChangerRoleDialog(user),
                                   tooltip: "Changer rôle",
                                 ),
-                                actif
+                                estActif
                                     ? IconButton(
                                         icon: const Icon(
                                           Icons.lock,

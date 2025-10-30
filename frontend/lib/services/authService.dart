@@ -107,7 +107,7 @@ Future<void> _saveAuthData(String token, String role) async {
     final body = {
       'nom': nom, 
       'prenom': prenom, 
-      'numero_de_telephone': telephone,
+      'numero_de_telephone': telephone.isEmpty?null:telephone,
       'email': email,
       'mot_de_passe': password,
       'adresse_fixe': { 

@@ -127,47 +127,9 @@ const creerAdmin = async (req, res) => {
 
 
 
-const mettreAJourUtilisateurAdmin = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { etat, role } = req.body; 
-        
-        if (!etat && !role) {
-            return res.status(400).json({ message: 'Au moins un champ (etat ou role) est requis pour la mise à jour.' });
-        }
-
-        const donneesAMettreAJour = {};
-
-        if (etat && ['Actif', 'Bloqué'].includes(etat)) {
-            donneesAMettreAJour.etat = etat;
-        }
-
-        if (role && ['utilisateur', 'admin'].includes(role)) {
-            donneesAMettreAJour.role = role;
-        }
-        
-        if (Object.keys(donneesAMettreAJour).length === 0) {
-            return res.status(400).json({ message: 'Données de mise à jour invalides.' });
-        }
-        
-        const [lignesAffectees] = await utilisateurService.mettreAJourUtilisateur(id, donneesAMettreAJour);
-
-        if (lignesAffectees === 0) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé ou données inchangées.' });
-        }
-
-        res.status(200).json({ message: `Utilisateur ${id} mis à jour avec succès.`, updates: donneesAMettreAJour });
-
-    } catch (erreur) {
-        console.error('Erreur lors de la mise à jour utilisateur (Admin):', erreur);
-        res.status(500).json({ message: 'Erreur interne du serveur.' });
-    }
-};
 
 
 module.exports = {
-    
-    mettreAJourUtilisateurAdmin,
     creerAdmin, // Nouvelle fonction
     verifierDroitsAdmin ,
 };

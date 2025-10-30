@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/Annonce.dart';
-import '../models/Produit.dart';
-import '../models/Service.dart';
-import '../composants/BarrePrincipale.dart';
-import '../composants/BoutonPrincipal.dart'; // 🚨 Import du BoutonPrincipal
+import '../../models/Annonce.dart';
+import '../../models/Produit.dart';
+import '../../models/Service.dart';
+import '../../composants/BarrePrincipale.dart';
+import '../../composants/BoutonPrincipal.dart'; // 🚨 Import du BoutonPrincipal
 
 class MesAnnonces extends StatefulWidget {
   const MesAnnonces({super.key});

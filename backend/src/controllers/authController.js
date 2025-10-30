@@ -68,7 +68,7 @@ const inscription = async (req, res) => {
             date_inscription: nouvelUtilisateur.date_inscription,
             reputation: nouvelUtilisateur.reputation,
             type_connexion: 'classique',
-            actif: nouvelUtilisateur.etat === 'Actif',
+            etat: nouvelUtilisateur.etat,
             role: nouvelUtilisateur.role, // ✅ AJOUT DU RÔLE
             adresse_fixe: nouvelleAdresse.toJSON()
         };
@@ -120,7 +120,7 @@ const connexion = async (req, res) => {
             date_inscription: utilisateur.date_inscription,
             reputation: utilisateur.reputation,
             type_connexion: 'classique',
-            actif: utilisateur.etat === 'Actif',
+            etat: utilisateur.etat,
             role: utilisateur.role, // ✅ AJOUT DU RÔLE
             adresse_fixe: utilisateur.adresseFixe ? utilisateur.adresseFixe.toJSON() : null
         };

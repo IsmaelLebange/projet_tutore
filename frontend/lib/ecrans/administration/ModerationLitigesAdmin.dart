@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/AdminGate.dart';
-import '../composants/BarrePrincipale.dart';
+import '../../composants/BarrePrincipale.dart';
 
 class ModerationLitigesAdmin extends StatelessWidget {
   const ModerationLitigesAdmin({super.key});

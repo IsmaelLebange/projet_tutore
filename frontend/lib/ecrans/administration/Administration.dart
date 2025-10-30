@@ -1,7 +1,7 @@
 // ...existing code...
 import 'package:flutter/material.dart';
-import '../composants/BarrePrincipale.dart';
-import '../composants/AdminGate.dart';
+import '../../composants/BarrePrincipale.dart';
+import '../../composants/AdminGate.dart';
 
 class Administration extends StatefulWidget {
   const Administration({super.key});

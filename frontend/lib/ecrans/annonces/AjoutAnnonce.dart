@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/Annonce.dart';
-import '../models/Produit.dart';
-import '../models/Service.dart';
-import '../services/annonceService.dart';
-import '../composants/BarrePrincipale.dart';
+import '../../models/Annonce.dart';
+import '../../models/Produit.dart';
+import '../../models/Service.dart';
+import '../../services/annonceService.dart';
+import '../../composants/BarrePrincipale.dart';
 
 class AjoutAnnonce extends StatefulWidget {
   @override

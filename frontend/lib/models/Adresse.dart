@@ -1,13 +1,13 @@
 class Adresse {
-  final String rue;
-  final String quartier;
+  final String? rue;
+  final String? quartier;
   final String? commune;
   final double? latitude;
   final double? longitude;
 
   Adresse({
-    required this.rue, 
-    required this.quartier, 
+    this.rue, 
+     this.quartier, 
     required this.commune,
     this.latitude, 
     this.longitude,

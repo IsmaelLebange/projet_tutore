@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/BarrePrincipale.dart';
-import 'package:frontend/ecrans/Discussion.dart';
+import 'package:frontend/ecrans/message/Discussion.dart';
 import 'package:frontend/models/Utilisateur.dart';
 
 class Messagerie extends StatelessWidget {
@@ -12,7 +12,7 @@ class Messagerie extends StatelessWidget {
     email: "jean.dupont@email.com",
     typeConnexion: "classique",
     dateCreation: DateTime.now(),
-    actif: true,
+    etat: "Actif",
   );
 
   // Liste des conversations
@@ -24,7 +24,7 @@ class Messagerie extends StatelessWidget {
       email: "alice@email.com",
       typeConnexion: "classique",
       dateCreation: DateTime.now(),
-      actif: true,
+      etat: "Actif",
     ),
     Utilisateur(
       id: 3,
@@ -33,7 +33,7 @@ class Messagerie extends StatelessWidget {
       email: "pierre@email.com", 
       typeConnexion: "classique",
       dateCreation: DateTime.now(),
-      actif: true,
+      etat: "Actif",
     ),
   ];
 

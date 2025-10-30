@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/BarrePrincipale.dart';
-import '../composants/ChampTexte.dart';
-import '../composants/BoutonPrincipal.dart';
-import '../services/authService.dart'; 
+import '../../composants/ChampTexte.dart';
+import '../../composants/BoutonPrincipal.dart';
+import '../../services/authService.dart'; 
 
 class Inscription extends StatefulWidget {
   Inscription({super.key});

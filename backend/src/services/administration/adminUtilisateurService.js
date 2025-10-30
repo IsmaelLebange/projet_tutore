@@ -5,13 +5,13 @@ const Adresse = require('../../models/Adresse');
 
 
 class AdminUtilisateurService {
-    
-    
+
+
     static async obtenirUtilisateurs(options = {}) {
         const { page = 1, limit = 50, recherche = '', role = '', etat = '' } = options;
 
         const whereClause = {};
-        
+
         if (recherche) {
             whereClause[Op.or] = [
                 { nom: { [Op.like]: `%${recherche}%` } },
@@ -23,7 +23,12 @@ class AdminUtilisateurService {
         if (role) whereClause.role = role;
         if (etat) whereClause.etat = etat;
 
-        const offset = (page - 1) * limit;
+        // JUSTIFICATION: Assurer que 'limit' et 'page' sont des entiers pour éviter les problèmes 
+        // dans la requête Sequelize et l'affichage.
+        const parsedLimit = parseInt(limit, 10);
+        const parsedPage = parseInt(page, 10);
+
+        const offset = (parsedPage - 1) * parsedLimit;
 
         const { count, rows: utilisateurs } = await Utilisateur.findAndCountAll({
             where: whereClause,
@@ -34,20 +39,26 @@ class AdminUtilisateurService {
             }],
             attributes: { exclude: ['mot_de_passe'] },
             order: [['date_inscription', 'DESC']],
-            limit: parseInt(limit),
+            // JUSTIFICATION: Utiliser la variable parsée
+            limit: parsedLimit, 
             offset: offset
         });
+
+        // JUSTIFICATION: Correction des logs et de la pagination pour utiliser les variables correctement
+        console.log('📥 Requête utilisateurs reçue:', { page: parsedPage, limit: parsedLimit, recherche, role, etat });
+        console.log(`📤 ${utilisateurs.length} utilisateurs retournés`);
 
         return {
             utilisateurs,
             pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page: parsedPage,
+                limit: parsedLimit,
                 total: count,
-                pages: Math.ceil(count / limit)
+                pages: Math.ceil(count / parsedLimit)
             }
         };
     }
+
 
     /**
      * Change l'état d'un utilisateur

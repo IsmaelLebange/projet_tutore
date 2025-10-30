@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/api.dart';
-import '../models/Produit.dart';
-import 'PageCatalogue.dart'; 
+import '../../services/api.dart';
+import '../../models/Produit.dart';
+import '../PageCatalogue.dart'; 
 
 class CatalogueProduits extends StatefulWidget {
   @override

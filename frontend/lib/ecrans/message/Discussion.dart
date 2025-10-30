@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/Message.dart';
-import '../models/Utilisateur.dart';
-import '../composants/ListeMessages.dart';
-import '../utils/constantes.dart';
+import '../../models/Message.dart';
+import '../../models/Utilisateur.dart';
+import '../../composants/ListeMessages.dart';
+import '../../utils/constantes.dart';
 
 class Discussion extends StatefulWidget {
   final Utilisateur utilisateurActuel;

@@ -1,5 +1,5 @@
 // controllers/administration/utilisateurController.js
-const AdminUtilisateurService = require('../../services/administration/adminUtilisateurAdmin');
+const AdminUtilisateurService = require('../../services/administration/adminUtilisateurService');
 
 class AdminUtilisateurController {
    
@@ -16,16 +16,16 @@ class AdminUtilisateurController {
             });
 
             res.status(200).json(result);
+            console.info("vas te faire voir")
 
         } catch (erreur) {
             console.error('Erreur récupération utilisateurs:', erreur);
             res.status(500).json({ message: 'Erreur interne du serveur.' });
+            console.log("utilisateurs pas ver-trou");
         }
     }
 
-    /**
-     * Changer l'état d'un utilisateur
-     */
+    
     static async changerEtatUtilisateur(req, res) {
         try {
             const { id } = req.params;
@@ -52,9 +52,6 @@ class AdminUtilisateurController {
         }
     }
 
-    /**
-     * Changer le rôle d'un utilisateur
-     */
     static async changerRoleUtilisateur(req, res) {
         try {
             const { id } = req.params;

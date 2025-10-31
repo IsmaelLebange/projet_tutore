@@ -20,7 +20,7 @@ const Adresse = sequelize.define('Adresse', {
     quartier: {
         type: DataTypes.STRING,
         allowNull: true,
-    },
+    }, 
     latitude: {
         type: DataTypes.FLOAT, 
         allowNull: true,

@@ -4,11 +4,11 @@ const { sequelize } = require('../config/database');
 const Adresse = require('./Adresse');
 
 const Utilisateur = sequelize.define('Utilisateur', {
-    prenom: { 
+    prenom: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    nom: { 
+    nom: {
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -37,12 +37,11 @@ const Utilisateur = sequelize.define('Utilisateur', {
     },
     id_adresse_fixe: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: Adresse,
-            key: 'id',
-        }
-    },
+        allowNull: false,
+        references: { model: Adresse, key: 'id' }
+    }
+    ,
+
     etat: {
         type: DataTypes.STRING,
         allowNull: false,

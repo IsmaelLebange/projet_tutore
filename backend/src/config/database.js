@@ -21,10 +21,7 @@ const connectDB = async () => {
         const Utilisateur = require('../models/utilisateur');
 
         // ✅ AJOUTE l'association manquante ici
-        Adresse.hasMany(Utilisateur, { 
-            foreignKey: 'id_adresse_fixe', 
-            as: 'utilisateursFixes' 
-        });
+        
         require('../models/index');
 
         const syncOption = process.env.NODE_ENV === 'production' ? { alter: true } : { force: true };

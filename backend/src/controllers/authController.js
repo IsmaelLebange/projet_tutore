@@ -5,7 +5,7 @@ const adresseService = require('../services/adresseService');
 
 // Configuration du hachage et du JWT (à mettre dans un fichier .env en production)
 const NOMBRE_CYCLES_HACHAGE = 10;
-const CLE_SECRETE_JWT = 'TA_CLE_SECRETE_ULTRA_SECRETE'; // À changer absolument
+const CLE_SECRETE_JWT =process.env.JWT_SECRET; // À changer absolument
 const DUREE_TOKEN = '1d';
 
 // Fonction utilitaire pour générer le token JWT
@@ -130,6 +130,7 @@ const connexion = async (req, res) => {
             utilisateur: utilisateurReponse,
             token 
         });
+        
 
     } catch (erreur) {
         console.error('Erreur lors de la connexion:', erreur);

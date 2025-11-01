@@ -34,7 +34,7 @@ class AdminUtilisateurService {
             where: whereClause,
             include: [{
                 model: Adresse,
-                as: 'id_adresse_fixe',
+                as: 'adresseFixe',
                 attributes: ['id','rue', 'ville',  'quartier']
             }],
             attributes: { exclude: ['mot_de_passe'] },

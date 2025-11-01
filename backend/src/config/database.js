@@ -24,7 +24,7 @@ const connectDB = async () => {
         
         require('../models/index');
 
-        const syncOption = process.env.NODE_ENV === 'production' ? { alter: true } : { force: true };
+        const syncOption = process.env.NODE_ENV === 'production' ? { alter: true } : { force: false };
         await sequelize.sync(syncOption);
         
         console.log(`✅ Tables synchronisées (Mode: ${process.env.NODE_ENV || 'development'})`);

@@ -8,6 +8,6 @@ const router = express.Router();
 router.get('/profile', authentifier, userController.obtenirProfil);
 
 // Route sécurisée pour modifier le profil
-router.put('/profile', authentifier, userController.mettreAJourProfil);
+router.put('/profileAJour', authentifier, userController.mettreAJourProfil);
 
 module.exports = router;

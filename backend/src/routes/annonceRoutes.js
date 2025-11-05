@@ -1,15 +1,14 @@
 const express = require('express');
-const router = express.Router();
 
+const router = express.Router();
 const annonceController = require('../controllers/annonceController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const chargerUtilisateur = require('../middlewares/chargerUtilisateur');
-const verifieEtat = require('../middlewares/verifierEtat');
+const upload = require('../middlewares/upload');
 
-// Ajouter une annonce (nécessite compte actif)
-router.post('/ajout', authMiddleware, chargerUtilisateur, verifieEtat, annonceController.ajouterAnnonce);
+// ✅ route pour ajouter avec images
+router.post('/ajout', authMiddleware, upload.array('images', 5), annonceController.ajouterAnnonce);
 
-// Lister toutes les annonces (publique)
+// ✅ route pour récupérer toutes les annonces
 router.get('/', annonceController.obtenirAnnonces);
 
 module.exports = router;

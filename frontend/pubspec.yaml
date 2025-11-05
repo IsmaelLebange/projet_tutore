@@ -30,15 +30,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    
   
   # API Calls (Required by adminService.dart and authService.dart)
-  http: ^1.2.2 
+  http: ^1.5.0 
   # Local Storage for JWT Token (Required by adminService.dart and authService.dart)
-  shared_preferences: ^2.2.3 # Mise à jour de la version
+  shared_preferences: ^2.5.3 # Mise à jour de la version
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  file_picker: ^10.3.3
+  image_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:

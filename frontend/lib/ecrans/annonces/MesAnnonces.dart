@@ -217,7 +217,7 @@ class _MesAnnoncesState extends State<MesAnnonces> {
               child: BoutonPrincipal(
                 texte: "Ajouter une nouvelle annonce",
                 onPressed: () {
-                  Navigator.pushNamed(context, '/ajoutAnnonce').then((_) {
+                  Navigator.pushNamed(context, '/annonces').then((_) {
                     _chargerMesAnnonces();
                   });
                 },

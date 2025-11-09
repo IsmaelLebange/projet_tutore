@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/AdminGate.dart';
-import '../../composants/BarrePrincipale.dart';
+import '../../composants/BarreRetour.dart';
 
 class StatistiquesAdmin extends StatelessWidget {
   const StatistiquesAdmin({super.key});
@@ -39,8 +39,7 @@ class StatistiquesAdmin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdminGate(child:  Scaffold(
-      appBar: const BarrePrincipale(titre: "Statistiques et Rapports"),
-      drawer: MenuPrincipal(),
+      appBar: const BarreRetour(titre: 'Statistique et rapport'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),

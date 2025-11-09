@@ -11,8 +11,8 @@ import 'package:flutter/foundation.dart';
 
 class AnnonceService {
   final String baseUrl =kIsWeb
-      ? 'http://localhost:3000/api/annonces'
-      : 'http://10.0.2.2:3000/api/annonces'; // ou ton URL serveur
+      ? 'http://localhost:3000/api'
+      : 'http://10.0.2.2:3000/api'; // ou ton URL serveur
   final AuthService _authService = AuthService();
 
   /// 🔑 Récupère automatiquement le token JWT depuis AuthService
@@ -33,7 +33,7 @@ class AnnonceService {
     final token = await _getToken();
     print('Token récupéré: $token');
 
-    final uri = Uri.parse('$baseUrl/ajout');
+    final uri = Uri.parse('$baseUrl/annonces/ajout');
     final request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -132,7 +132,7 @@ class AnnonceService {
 
   /// 📥 Récupération de toutes les annonces
   Future<List<Annonce>> obtenirAnnonces() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final response = await http.get(Uri.parse('$baseUrl/annonces'));
     if (response.statusCode != 200) {
       throw Exception('Erreur serveur: ${response.statusCode}');
     }
@@ -143,7 +143,7 @@ class AnnonceService {
 
   /// 🔍 Récupérer une annonce spécifique
   Future<Annonce> obtenirAnnonceParId(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/annonces/$id'));
     if (response.statusCode != 200) {
       throw Exception('Annonce introuvable.');
     }
@@ -155,7 +155,7 @@ class AnnonceService {
     final token = await _getToken();
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/annonces/$id'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -238,7 +238,7 @@ class AnnonceService {
       final token = await _getToken();
       
       final response = await http.get(
-        Uri.parse('$baseUrl/mesAnnonces'),
+        Uri.parse('$baseUrl/annonces/mesAnnonces'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

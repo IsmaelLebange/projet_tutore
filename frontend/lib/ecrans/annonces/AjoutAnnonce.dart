@@ -5,7 +5,7 @@ import 'dart:io';
 import '../../services/annonceService.dart';
 import '../../models/Produit.dart';
 import '../../models/Service.dart';
-import '../../composants/BarrePrincipale.dart';
+import '../../composants/BarreRetour.dart';
 import '../../composants/UserGate.dart';
 
 class AjoutAnnonce extends StatefulWidget {
@@ -74,7 +74,7 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
     _formKey.currentState!.save();
 
     try {
-      
+
       final annonce = (_type == "produit")
           ? Produit(
               id: null,
@@ -116,7 +116,7 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
 
     return UserGate( 
       child: Scaffold(
-      appBar: const BarrePrincipale(titre: "Ajouter une annonce"),
+      appBar: const BarreRetour(titre: 'Ajouter Annonces'),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

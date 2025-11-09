@@ -7,6 +7,7 @@ class Annonce {
   final double prix;          
   final String type;     
   final Adresse? adresse;     
+  final String? statut; 
     
   final String image;         
   final int? utilisateurId;   
@@ -20,6 +21,7 @@ class Annonce {
     required this.image,
     this.adresse,
     this.utilisateurId,
+    this.statut, 
   });
 
   // ✅ conversion objet → JSON (pour l'API backend)
@@ -31,6 +33,7 @@ class Annonce {
         "type": type,
         "image": image,
         "utilisateurId": utilisateurId,
+        "statut": statut,
       };
 
   // ✅ conversion JSON → objet (quand on reçoit depuis l'API backend)
@@ -43,6 +46,7 @@ class Annonce {
       type: json["type"],
       image: json["image"],
       utilisateurId: json["utilisateurId"], adresse: null,
+      statut: json['statut'],
     );
   }
 }

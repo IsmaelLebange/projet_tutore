@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../services/administration/adminService.dart';
 import '../../composants/AdminGate.dart';
-import '../../composants/BarrePrincipale.dart'; // barre commune
+import '../../composants/BarreRetour.dart'; // barre commune
 import '../../models/Utilisateur.dart'; // model
 import '../../models/Adresse.dart';
 
@@ -100,7 +100,7 @@ class _CreationAdminFormState extends State<CreationAdminForm> {
   Widget build(BuildContext context) {
     return AdminGate(
       child: Scaffold(
-        appBar: const BarrePrincipale(titre: "Ajouter un admin",),
+        appBar: const BarreRetour(titre: 'Ajouter admin'),
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),

@@ -4,6 +4,7 @@ const annonceController = require('../controllers/annonceController');
 const authentifier = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/upload');
 
+
 console.log('📋 Routes annonces chargées');
 
 // Routes publiques
@@ -12,6 +13,7 @@ router.get('/', annonceController.obtenirAnnonces);
 // 🆕 Routes protégées
 router.get('/mesAnnonces', authentifier, annonceController.obtenirMesAnnonces);
 router.delete('/:id', authentifier, annonceController.supprimerAnnonce);
+
 
 // Route ajout
 router.post(

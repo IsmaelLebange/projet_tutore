@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/composants/AdminGate.dart';
-import '../../composants/BarrePrincipale.dart';
+import '../../composants/BarreRetour.dart';
 
 class ModerationLitigesAdmin extends StatelessWidget {
   const ModerationLitigesAdmin({super.key});
@@ -15,8 +15,7 @@ class ModerationLitigesAdmin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdminGate(child:  Scaffold(
-      appBar: const BarrePrincipale(titre: "Modération des Litiges"),
-      drawer: MenuPrincipal(),
+      appBar: const BarreRetour(titre: 'Moderation des litiges'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),

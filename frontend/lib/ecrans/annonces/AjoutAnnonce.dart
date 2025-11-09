@@ -74,6 +74,7 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
     _formKey.currentState!.save();
 
     try {
+      
       final annonce = (_type == "produit")
           ? Produit(
               id: null,

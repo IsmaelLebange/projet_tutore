@@ -16,7 +16,7 @@ class AdminUtilisateurController {
             });
 
             res.status(200).json(result);
-            console.info("vas te faire voir")
+            
 
         } catch (erreur) {
             console.error('Erreur récupération utilisateurs:', erreur);

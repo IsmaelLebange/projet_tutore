@@ -112,8 +112,6 @@ class MenuPrincipal extends StatelessWidget {
                 _buildListTile(context, 'Profil', Icons.account_circle, '/profil'),
                 _buildListTile(context, 'Se connecter', Icons.login, '/connexion'),
                 _buildListTile(context, 'Inscription', Icons.app_registration, '/inscription'),
-                _buildListTile(context, 'Administration', Icons.admin_panel_settings, '/administration'),
-                _buildListTile(context, "create Admin", Icons.admin_panel_settings, '/admin/create'),
               ],
             ),
           ),

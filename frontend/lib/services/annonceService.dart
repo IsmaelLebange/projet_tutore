@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'package:http_parser/http_parser.dart'; 
 import 'package:http/http.dart' as http;
 import '../models/Annonce.dart';
 import '../models/Produit.dart';
@@ -10,15 +11,16 @@ import 'package:flutter/foundation.dart';
 
 class AnnonceService {
   final String baseUrl =kIsWeb
-      ? 'http://localhost:3000/api'
-      : 'http://10.0.2.2:3000/api'; // ou ton URL serveur
+      ? 'http://localhost:3000/api/annonces'
+      : 'http://10.0.2.2:3000/api/annonces'; // ou ton URL serveur
   final AuthService _authService = AuthService();
 
   /// 🔑 Récupère automatiquement le token JWT depuis AuthService
   Future<String?> _getToken() async {
     final token = await _authService.getToken();
+    
     if (token == null || token.isEmpty) {
-      throw Exception("Utilisateur non authentifié.");
+      throw Exception("Utilisateur non authentifié2.");
     }
     return token;
   }
@@ -29,13 +31,17 @@ class AnnonceService {
     required List<PlatformFile> images, // 🔥 Changé de File à PlatformFile
   }) async {
     final token = await _getToken();
+    print('Token récupéré: $token');
 
-    final uri = Uri.parse('$baseUrl/annonces/ajout');
+    final uri = Uri.parse('$baseUrl/ajout');
     final request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = 'Bearer $token';
 
+    print('📤 Envoi vers: $uri');
+    print('🔑 Header Authorization: Bearer ${token!.substring(0, 20)}...');
     final Map<String, String> champs = {
       'titre': annonce.titre,
+
       'description': annonce.description,
       'prix': annonce.prix.toString(),
       'type': annonce.type.toLowerCase(),
@@ -53,19 +59,63 @@ class AnnonceService {
     request.fields.addAll(champs);
 
     // 🔥 Ajout des images (Web + Mobile compatible)
-    for (final image in images) {
+        // 🔥 Ajout des images (Web + Mobile compatible)
+    print('📷 Ajout de ${images.length} image(s)...');
+    
+    for (int i = 0; i < images.length; i++) {
+      final image = images[i];
+      
+      // Déterminer le MIME type selon l'extension
+      String ext = image.name.split('.').last.toLowerCase();
+      String mimeType;
+      
+      switch (ext) {
+        case 'png':
+          mimeType = 'image/png';
+          break;
+        case 'jpg':
+        case 'jpeg':
+          mimeType = 'image/jpeg';
+          break;
+        case 'gif':
+          mimeType = 'image/gif';
+          break;
+        case 'webp':
+          mimeType = 'image/webp';
+          break;
+        case 'bmp':
+          mimeType = 'image/bmp';
+          break;
+        default:
+          print('⚠️ Extension inconnue: $ext, utilisation de image/jpeg');
+          mimeType = 'image/jpeg';
+      }
+
+      print('  📎 Image ${i + 1}: ${image.name} - MIME: $mimeType');
+      
       if (kIsWeb) {
         // Sur Web : utilise bytes
-        request.files.add(http.MultipartFile.fromBytes(
-          'images',
-          image.bytes!,
-          filename: image.name,
-        ));
+        if (image.bytes != null) {
+          request.files.add(http.MultipartFile.fromBytes(
+            'images',
+            image.bytes!,
+            filename: image.name,
+            contentType: MediaType.parse(mimeType), // 🔧 AJOUT
+          ));
+          print('  ✅ Image ${i + 1} ajoutée (Web)');
+        }
       } else {
         // Sur Mobile : utilise path
-        request.files.add(
-          await http.MultipartFile.fromPath('images', image.path!),
-        );
+        if (image.path != null) {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'images',
+              image.path!,
+              contentType: MediaType.parse(mimeType), // 🔧 AJOUT
+            ),
+          );
+          print('  ✅ Image ${i + 1} ajoutée (Mobile)');
+        }
       }
     }
 
@@ -179,6 +229,77 @@ class AnnonceService {
       throw Exception('Erreur sélection images: $e');
     }
   }
+
+  
+  Future<List<Annonce>> obtenirMesAnnonces() async {
+    try {
+      print('📋 Récupération de mes annonces...');
+      
+      final token = await _getToken();
+      
+      final response = await http.get(
+        Uri.parse('$baseUrl/mesAnnonces'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📥 Status: ${response.statusCode}');
+      print('📄 Réponse: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data['success'] == true && data['annonces'] != null) {
+          final List<dynamic> annoncesJson = data['annonces'];
+          print('✅ ${annoncesJson.length} annonce(s) récupérée(s)');
+          
+          return annoncesJson.map((json) {
+            // ⚠️ Créer le bon type selon le champ 'type'
+            if (json['type'] == 'produit') {
+              return Produit(
+                id: json['id'],
+                titre: json['titre'],
+                description: json['description'],
+                prix: (json['prix'] as num).toDouble(),
+                image: json['image'] ?? '', // ⚠️ image du backend
+                categorieProduit: json['categorie'] ?? '',
+                typeProduit: json['typeSpecifique'] ?? '',
+              );
+            } else if (json['type'] == 'service') {
+              return Service(
+                id: json['id'],
+                titre: json['titre'],
+                description: json['description'],
+                prix: (json['prix'] as num).toDouble(),
+                image: json['image'] ?? '', // ⚠️ image du backend
+                categorieService: json['categorie'] ?? '',
+                typeService: json['typeSpecifique'] ?? '',
+              );
+            } else {
+              return Annonce(
+                id: json['id'],
+                titre: json['titre'],
+                description: json['description'],
+                prix: (json['prix'] as num).toDouble(),
+                type: json['type'],
+                image: json['image'] ?? '',
+              );
+            }
+          }).toList();
+        }
+        return [];
+      } else {
+        throw Exception('Erreur ${response.statusCode}');
+      }
+
+    } catch (e) {
+      print('❌ Exception obtenirMesAnnonces: $e');
+      rethrow;
+    }
+  }
+
 }
 
 

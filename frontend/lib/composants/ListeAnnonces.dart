@@ -6,8 +6,13 @@ import 'CarteService.dart';
 
 class ListeAnnonces extends StatelessWidget {
   final List<Map<String, dynamic>> annonces;
+  final void Function(Map<String, dynamic>)? onTap; // ✅ AJOUT
 
-  const ListeAnnonces({required this.annonces, super.key});
+  const ListeAnnonces({
+    required this.annonces,
+    this.onTap, // ✅ AJOUT
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,10 @@ class ListeAnnonces extends StatelessWidget {
             prix: annonce['prix'].toDouble(),
             image: annonce['image']
           );
-          return CarteService(service: service);
+          return GestureDetector(
+            onTap: onTap != null ? () => onTap!(annonce) : null, // ✅ AJOUT
+            child: CarteService(service: service),
+          );
         } else {
           final produit = Produit(
             id: annonce['id'],
@@ -31,10 +39,15 @@ class ListeAnnonces extends StatelessWidget {
             description: annonce['description'],
             typeProduit: annonce['typeProduit'],
             categorieProduit: annonce['categorieProduit'],
+            dimension: annonce['dimension'], // ✅ AJOUT (si présent)
+            etat: annonce['etat'], // ✅ AJOUT (si présent)
             prix: annonce['prix'],
             image: annonce['image'],
           );
-          return CarteProduit(produit: produit);
+          return GestureDetector(
+            onTap: onTap != null ? () => onTap!(annonce) : null, // ✅ AJOUT
+            child: CarteProduit(produit: produit),
+          );
         }
       }).toList(),
     );

@@ -9,7 +9,7 @@ const Produit = sequelize.define('Produit', {
         type: DataTypes.STRING(50),
         allowNull: false,
     },
-    dimensions: {
+    dimension: {
         type: DataTypes.STRING(50),
         allowNull: true,
     },

@@ -108,6 +108,22 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
     );
   }
 
+  // ✅ Helper : construit l'URL avatar (photo backend OU UI-Avatars fallback)
+  String _getAvatarUrl(Utilisateur user) {
+    if (user.photoProfil != null && user.photoProfil!.isNotEmpty) {
+      // Si commence par http => déjà absolue
+      if (user.photoProfil!.startsWith('http')) {
+        return user.photoProfil!;
+      }
+      // Sinon ajoute prefix backend
+      return 'http://localhost:3000${user.photoProfil!.startsWith('/') ? '' : '/'}${user.photoProfil}';
+    }
+    
+    // ✅ Fallback : génère avatar via UI-Avatars (pas de 404 possible)
+    final seed = '${user.prenom} ${user.nom}'.trim();
+    return 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(seed)}&background=0D8ABC&color=fff&size=128';
+  }
+
   @override
   Widget build(BuildContext context) {
     return AdminGate(
@@ -125,45 +141,61 @@ class _GestionUtilisateursAdminState extends State<GestionUtilisateursAdmin> {
                         child: ListView(
                           children: _utilisateurs.map((user) {
                             final estActif = user.etat == 'Actif';
-                            
-                            // ✅ Construction URL avatar
-                            String? avatarUrl;
-                            if (user.photoProfil != null && user.photoProfil!.isNotEmpty) {
-                              if (user.photoProfil!.startsWith('http')) {
-                                avatarUrl = user.photoProfil;
-                              } else {
-                                avatarUrl = 'http://localhost:3000${user.photoProfil!.startsWith('/') ? '' : '/'}${user.photoProfil}';
-                              }
-                            }
+                            final avatarUrl = _getAvatarUrl(user);
                             
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(12),
-                                // ✅ Avatar avec image réseau
-                                leading: avatarUrl != null
-                                    ? CircleAvatar(
-                                        radius: 28,
-                                        backgroundColor: Colors.grey[300],
-                                        backgroundImage: NetworkImage(avatarUrl),
-                                        onBackgroundImageError: (_, __) {},
-                                        child: avatarUrl.isEmpty
-                                            ? Icon(
-                                                estActif ? Icons.person : Icons.person_off,
-                                                color: estActif ? Colors.green : Colors.red,
-                                                size: 28,
-                                              )
-                                            : null,
-                                      )
-                                    : CircleAvatar(
-                                        radius: 28,
-                                        backgroundColor: estActif ? Colors.green[100] : Colors.red[100],
-                                        child: Icon(
-                                          estActif ? Icons.person : Icons.person_off,
-                                          color: estActif ? Colors.green : Colors.red,
-                                          size: 28,
-                                        ),
-                                      ),
+                                // ✅ Avatar avec image réseau (backend OU UI-Avatars)
+                                leading: CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: Colors.grey[300],
+                                  child: ClipOval(
+                                    child: Image.network(
+                                      avatarUrl,
+                                      width: 56,
+                                      height: 56,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, progress) {
+                                        if (progress == null) return child;
+                                        return SizedBox(
+                                          width: 56,
+                                          height: 56,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              value: progress.expectedTotalBytes != null
+                                                  ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                        // ✅ Si erreur (404), affiche initiales
+                                        return Container(
+                                          width: 56,
+                                          height: 56,
+                                          decoration: BoxDecoration(
+                                            color: estActif ? Colors.green[100] : Colors.red[100],
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${user.prenom.isNotEmpty ? user.prenom[0] : '?'}${user.nom.isNotEmpty ? user.nom[0] : ''}'.toUpperCase(),
+                                              style: TextStyle(
+                                                color: estActif ? Colors.green[900] : Colors.red[900],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
                                 title: Text(
                                   '${user.prenom} ${user.nom}',
                                   style: const TextStyle(fontWeight: FontWeight.bold),

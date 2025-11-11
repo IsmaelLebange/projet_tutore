@@ -15,13 +15,16 @@ class Produit extends Annonce{
     required String image,
     required this.typeProduit,
     required this.categorieProduit,
-    this.dimension,}):super(
+    this.dimension,
+    String? etat,}):super(
      id: id,
      titre: titre,
      description: description,
      prix: prix,
      image: image,
-     type: 'Produit'
+     type: 'Produit',
+     etat: etat,
+
   );
 
   factory Produit.fromJson(Map<String, dynamic> json) {
@@ -34,6 +37,17 @@ class Produit extends Annonce{
       dimension: json['dimension'] as String?,
       prix: (json['prix'] as num).toDouble(),
       image: json['image'] as String,
+      etat: json['etat'],
     );
+  }
+@override
+  Map<String, dynamic> toJson() {
+    final map = super.toJson();
+    map.addAll({
+      'typeProduit': typeProduit,
+      'categorieProduit': categorieProduit,
+      'dimension': dimension,
+    });
+    return map;
   }
 }

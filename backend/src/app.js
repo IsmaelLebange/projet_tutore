@@ -2,10 +2,11 @@ const express = require('express');
 const path = require('path');
 const setupExpress = require('./config/express');
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes'); // <-- NOUVEL IMPORT
+const userRoutes = require('./routes/userRoutes'); 
 const adminRoutes = require('./routes/adminRoutes');
 const annonceRoutes = require('./routes/annonceRoutes');
 const categorieRoutes = require('./routes/categorieRoutes');
+const produitRoutes = require('./routes/produitRoutes'); 
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/annonces', annonceRoutes);
 app.use('/api/categories', categorieRoutes);
+app.use('/api/produits', produitRoutes);
 
 
 app.use((req, res, next) => {

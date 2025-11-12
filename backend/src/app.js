@@ -9,11 +9,13 @@ const categorieRoutes = require('./routes/categorieRoutes');
 const produitRoutes = require('./routes/produitRoutes'); 
 const serviceRoutes = require('./routes/serviceRoutes');
 const panierRoutes = require('./routes/panierRoutes');
+const welcomeRoutes = require('./routes/welcomeRoutes');
 
 const app = express();
 
 setupExpress(app);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/api/bonjour', welcomeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes); 

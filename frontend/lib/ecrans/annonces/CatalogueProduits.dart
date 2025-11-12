@@ -71,7 +71,6 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
                   "prix": p.prix,
                   "image": p.image,
                   "etat": p.etat,
-                  // ✅ singular
                 })
             .toList();
 
@@ -88,6 +87,7 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
               ),
             );
           },
+          // onAddToCart: null => handled par ListeAnnonces par défaut
         );
       },
     );

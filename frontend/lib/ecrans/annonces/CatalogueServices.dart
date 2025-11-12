@@ -77,6 +77,17 @@ class _CatalogueServicesState extends State<CatalogueServices> {
         return PageCatalogue(
           titrePage: "Catalogue Services",
           annonces: annonces,
+          onTap: (annonce) {
+            final id = annonce['id'] as int?;
+            if (id == null) return;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DetailsService(serviceId: id),
+              ),
+            );
+          },
+          // onAddToCart: null => handled par ListeAnnonces par défaut
         );
       },
     );

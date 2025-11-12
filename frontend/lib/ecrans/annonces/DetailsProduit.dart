@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/Produit.dart';
 import '../../services/produitService.dart';
+import '../../services/panierService.dart';
 import '../../composants/BarreRetour.dart';
 
 class DetailsProduit extends StatefulWidget {
@@ -13,13 +14,61 @@ class DetailsProduit extends StatefulWidget {
 }
 
 class _DetailsProduitState extends State<DetailsProduit> {
-  final ProduitService _service = ProduitService();
+  final ProduitService _produitService = ProduitService();
+  final PanierService _panierService = PanierService();
   late Future<Produit> _produitFuture;
+  bool _ajoutEnCours = false;
 
   @override
   void initState() {
     super.initState();
-    _produitFuture = _service.obtenirProduitParId(widget.produitId);
+    _produitFuture = _produitService.obtenirProduitParId(widget.produitId);
+  }
+
+  Future<void> _ajouterAuPanier(Produit produit) async {
+    if (_ajoutEnCours) return;
+    setState(() => _ajoutEnCours = true);
+
+    try {
+      await _panierService.ajouterAuPanier(
+        type: 'Produit',
+        itemId: produit.id!,
+        quantite: 1,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${produit.titre} ajouté au panier'),
+          action: SnackBarAction(
+            label: 'Voir',
+            onPressed: () => Navigator.pushNamed(context, '/panier'),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e.toString();
+      if (msg.contains('401') || msg.contains('Token') || msg.contains('auth')) {
+        final goLogin = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Connexion requise'),
+            content: const Text('Connecte-toi pour ajouter au panier.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
+              ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Se connecter')),
+            ],
+          ),
+        );
+        if (goLogin == true && mounted) {
+          Navigator.pushNamed(context, '/connexion');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _ajoutEnCours = false);
+    }
   }
 
   @override
@@ -32,215 +81,157 @@ class _DetailsProduitState extends State<DetailsProduit> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('Erreur: ${snapshot.error}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _produitFuture = _service.obtenirProduitParId(widget.produitId);
-                      });
-                    },
-                    child: const Text('Réessayer'),
-                  ),
-                ],
-              ),
-            );
+            return _errorView(snapshot.error.toString(), onRetry: () {
+              setState(() {
+                _produitFuture = _produitService.obtenirProduitParId(widget.produitId);
+              });
+            });
           }
-
           if (!snapshot.hasData) {
-            return const Center(child: Text('Produit introuvable'));
+            return _emptyView('Produit introuvable');
           }
 
           final produit = snapshot.data!;
-          final imageUrl = ProduitService.buildImageUrl(produit.image); // ✅ Utilise la méthode centralisée
+          final imageUrl = ProduitService.buildImageUrl(produit.image);
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ✅ Image principale
-                Container(
-                  width: double.infinity,
-                  height: 300,
-                  color: Colors.white,
-                  child: imageUrl.isEmpty
-                      ? const Center(
-                          child: Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
-                        )
-                      : Image.network(
-                          imageUrl,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, progress) {
-                            if (progress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: progress.expectedTotalBytes != null
-                                    ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            print('❌ Erreur image: $imageUrl'); // ✅ Debug URL complète
-                            print('❌ Détail erreur: $error');
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.broken_image, size: 64, color: Colors.grey),
-                                  SizedBox(height: 8),
-                                  Text('Image non disponible', style: TextStyle(color: Colors.grey)),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 96),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _image(imageUrl, 'produit_${widget.produitId}'),
+                    _infos(produit),
+                    _description(produit.description),
+                  ],
                 ),
-
-                // ✅ Informations principales
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        produit.titre,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${produit.prix.toStringAsFixed(0)} FC',
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildInfoChip(
-                            icon: Icons.category,
-                            label: produit.categorieProduit,
-                            color: Colors.blue,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildInfoChip(
-                            icon: Icons.label,
-                            label: produit.typeProduit,
-                            color: Colors.purple,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      if (produit.etat != null)
-                        _buildInfoChip(
-                          icon: Icons.info_outline,
-                          label: 'État: ${produit.etat}',
-                          color: produit.etat == 'Neuf' ? Colors.green : Colors.orange,
-                        ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // ✅ Description
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Description',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        produit.description,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.black54,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 80),
-              ],
-            ),
+              ),
+              Align(alignment: Alignment.bottomCenter, child: _actions(produit)),
+            ],
           );
         },
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, -2),
+    );
+  }
+
+  Widget _image(String url, String heroTag) {
+    return Hero(
+      tag: heroTag,
+      child: Container(
+        height: 300,
+        color: Colors.white,
+        width: double.infinity,
+        child: url.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.image_not_supported, size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 8),
+                    Text('Aucune image disponible', style: TextStyle(color: Colors.grey[600])),
+                  ],
+                ),
+              )
+            : Image.network(
+                url,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.broken_image, size: 64, color: Colors.grey[500]),
+                      const SizedBox(height: 8),
+                      const Text('Image non disponible'),
+                    ],
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _infos(Produit p) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(p.titre, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              border: Border.all(color: Colors.green[200]!),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
+            child: Text('${p.prix.toStringAsFixed(0)} FC',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _chip(Icons.category, p.categorieProduit, Colors.blue),
+              _chip(Icons.label, p.typeProduit, Colors.purple),
+              if (p.etat != null) _chip(Icons.info_outline, 'État: ${p.etat}', Colors.orange),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _description(String text) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [Icon(Icons.description, color: Colors.grey[700]), const SizedBox(width: 8), const Text('Description', style: TextStyle(fontWeight: FontWeight.bold))]),
+          const SizedBox(height: 8),
+          Text(text.isEmpty ? 'Aucune description disponible.' : text, style: const TextStyle(height: 1.5)),
+        ],
+      ),
+    );
+  }
+
+  Widget _actions(Produit p) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: Colors.white, boxShadow: [
+        BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 8, offset: const Offset(0, -3)),
+      ]),
+      child: SafeArea(
+        top: false,
         child: Row(
           children: [
             Expanded(
+              flex: 2,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Produit ajouté au panier')),
-                  );
-                },
-                icon: const Icon(Icons.add_shopping_cart),
-                label: const Text('Ajouter au panier'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
+                onPressed: _ajoutEnCours ? null : () => _ajouterAuPanier(p),
+                icon: _ajoutEnCours
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.add_shopping_cart),
+                label: Text(_ajoutEnCours ? 'Ajout...' : 'Ajouter au panier'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: ElevatedButton.icon(
+              child: OutlinedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Messagerie à venir')),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Messagerie à venir')));
                 },
                 icon: const Icon(Icons.message),
-                label: const Text('Contacter'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
+                label: const Text('Contact'),
               ),
             ),
           ],
@@ -249,33 +240,44 @@ class _DetailsProduitState extends State<DetailsProduit> {
     );
   }
 
-  Widget _buildInfoChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
+  Widget _chip(IconData icon, String label, MaterialColor color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.shade50,
+        border: Border.all(color: color.shade200),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            ),
-          ),
-        ],
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(color: color.shade800, fontWeight: FontWeight.w600)),
+      ]),
+    );
+  }
+
+  Widget _errorView(String msg, {VoidCallback? onRetry}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 12),
+          Text('Erreur: $msg', textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          if (onRetry != null) ElevatedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Réessayer')),
+        ]),
       ),
+    );
+  }
+
+  Widget _emptyView(String msg) {
+    return Center(
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+        const SizedBox(height: 12),
+        Text(msg, style: TextStyle(color: Colors.grey[600])),
+      ]),
     );
   }
 }

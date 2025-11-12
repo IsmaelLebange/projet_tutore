@@ -28,16 +28,16 @@ class BarrePrincipale extends StatelessWidget implements PreferredSizeWidget {
         builder: (context) => IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {
-            Scaffold.of(context).openDrawer(); // ouvre le drawer
+            Scaffold.of(context).openDrawer();
           },
         ),
       ),
-      // Ajout d'une icône d'action classique à droite (ex: Panier ou Compte)
+      // ✅ Ajout icône Panier
       actions: [
         IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.white),
+          icon: const Icon(Icons.shopping_cart, color: Colors.white),
           onPressed: () {
-            // Logique pour les favoris
+            Navigator.pushNamed(context, '/panier');
           },
         ),
       ],
@@ -88,7 +88,7 @@ class MenuPrincipal extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () {
-                    Navigator.of(context).pop(); // ferme le Drawer
+                    Navigator.of(context).pop();
                   },
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/Produit.dart';
 import '../../services/produitService.dart';
+import '../../composants/BarreRetour.dart';
 
 class DetailsProduit extends StatefulWidget {
   final int produitId;
@@ -21,32 +22,10 @@ class _DetailsProduitState extends State<DetailsProduit> {
     _produitFuture = _service.obtenirProduitParId(widget.produitId);
   }
 
-  // ✅ Construire l'URL de l'image (backend ou externe)
-  String _buildImageUrl(String url) {
-    if (url.startsWith('http')) return url;
-    return 'http://localhost:3000${url.startsWith('/') ? '' : '/'}$url';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text(
-          'Détails du produit',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: const BarreRetour(titre: "Détails du produit"),
       body: FutureBuilder<Produit>(
         future: _produitFuture,
         builder: (context, snapshot) {
@@ -81,7 +60,7 @@ class _DetailsProduitState extends State<DetailsProduit> {
           }
 
           final produit = snapshot.data!;
-          final imageUrl = _buildImageUrl(produit.image);
+          final imageUrl = ProduitService.buildImageUrl(produit.image); // ✅ Utilise la méthode centralisée
 
           return SingleChildScrollView(
             child: Column(
@@ -92,33 +71,39 @@ class _DetailsProduitState extends State<DetailsProduit> {
                   width: double.infinity,
                   height: 300,
                   color: Colors.white,
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: progress.expectedTotalBytes != null
-                              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                              : null,
+                  child: imageUrl.isEmpty
+                      ? const Center(
+                          child: Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
+                        )
+                      : Image.network(
+                          imageUrl,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: progress.expectedTotalBytes != null
+                                    ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('❌ Erreur image: $imageUrl'); // ✅ Debug URL complète
+                            print('❌ Détail erreur: $error');
+                            return Container(
+                              color: Colors.grey[300],
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                                  SizedBox(height: 8),
+                                  Text('Image non disponible', style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.broken_image, size: 64, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text('Image non disponible', style: TextStyle(color: Colors.grey)),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
                 ),
 
                 // ✅ Informations principales
@@ -129,7 +114,6 @@ class _DetailsProduitState extends State<DetailsProduit> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Titre
                       Text(
                         produit.titre,
                         style: const TextStyle(
@@ -139,8 +123,6 @@ class _DetailsProduitState extends State<DetailsProduit> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      // Prix
                       Text(
                         '${produit.prix.toStringAsFixed(0)} FC',
                         style: const TextStyle(
@@ -150,8 +132,6 @@ class _DetailsProduitState extends State<DetailsProduit> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
-                      // Catégorie et Type
                       Row(
                         children: [
                           _buildInfoChip(
@@ -168,8 +148,6 @@ class _DetailsProduitState extends State<DetailsProduit> {
                         ],
                       ),
                       const SizedBox(height: 8),
-
-                      // État
                       if (produit.etat != null)
                         _buildInfoChip(
                           icon: Icons.info_outline,
@@ -211,63 +189,66 @@ class _DetailsProduitState extends State<DetailsProduit> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
-
-                // ✅ Dimensions (si présentes)
-                if (produit.dimension != null && produit.dimension!.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Dimensions',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.straighten, size: 20, color: Colors.grey),
-                            const SizedBox(width: 8),
-                            Text(
-                              produit.dimension!,
-                              style: const TextStyle(fontSize: 15, color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                const SizedBox(height: 80), // Espace pour le bouton fixe
+                const SizedBox(height: 80),
               ],
             ),
           );
         },
       ),
-      // ✅ Bouton flottant "Contacter le vendeur"
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // TODO: Navigation vers messagerie ou appel
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Fonctionnalité à venir : Contacter le vendeur')),
-          );
-        },
-        icon: const Icon(Icons.message),
-        label: const Text('Contacter'),
-        backgroundColor: Colors.blue,
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Produit ajouté au panier')),
+                  );
+                },
+                icon: const Icon(Icons.add_shopping_cart),
+                label: const Text('Ajouter au panier'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Messagerie à venir')),
+                  );
+                },
+                icon: const Icon(Icons.message),
+                label: const Text('Contacter'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  // ✅ Widget helper pour les chips d'info
   Widget _buildInfoChip({
     required IconData icon,
     required String label,

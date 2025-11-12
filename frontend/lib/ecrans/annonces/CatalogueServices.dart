@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/api.dart';
+import '../../services/serviceService.dart';
 import '../../models/Service.dart';
 import '../PageCatalogue.dart';
+import 'DetailsService.dart';
 
 class CatalogueServices extends StatefulWidget {
   @override
@@ -9,45 +10,67 @@ class CatalogueServices extends StatefulWidget {
 }
 
 class _CatalogueServicesState extends State<CatalogueServices> {
-  late Future<List<Service>> services;
+  final ServiceService _serviceService = ServiceService();
+  late Future<List<Service>> _servicesFuture;
 
   @override
   void initState() {
     super.initState();
-    services = Api().getServices();
+    _servicesFuture = _serviceService.obtenirServices();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Service>>(
-      future: services,
+      future: _servicesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: Text("Catalogue Services")),
-            body: Center(child: CircularProgressIndicator()),
+            appBar: AppBar(title: const Text("Catalogue Services")),
+            body: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: Text("Catalogue Services")),
-            body: Center(child: Text("Erreur : ${snapshot.error}")),
+            appBar: AppBar(title: const Text("Catalogue Services")),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text("Erreur : ${snapshot.error}"),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _servicesFuture = _serviceService.obtenirServices();
+                      });
+                    },
+                    child: const Text("Réessayer"),
+                  ),
+                ],
+              ),
+            ),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: Text("Catalogue Services")),
-            body: Center(child: Text("Aucun service trouvé")),
+            appBar: AppBar(title: const Text("Catalogue Services")),
+            body: const Center(child: Text("Aucun service trouvé")),
           );
         }
 
         final annonces = snapshot.data!
             .map((s) => {
-                  "type": s.type,
+                  "type": "Service",
+                  "id": s.id,
                   "titre": s.titre,
                   "description": s.description,
-                  "typeService":s.typeService,
-                  "categorieService":s.categorieService,
+                  "typeService": s.typeService,
+                  "categorieService": s.categorieService,
                   "prix": s.prix,
-                  "image":s.image
+                  "image": s.image,
+                  "disponibilite": s.disponibilite,
+                  "etat": s.etat,
                 })
             .toList();
 

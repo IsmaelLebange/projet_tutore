@@ -36,9 +36,14 @@ class BarreRetour extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      actions: const [
-        // Conserve un espace/alignement cohérent (icône transparente)
-        SizedBox(width: 48),
+      // ✅ Ajout icône Panier
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.shopping_cart, color: Colors.white),
+          onPressed: () {
+            Navigator.pushNamed(context, '/panier');
+          },
+        ),
       ],
     );
   }

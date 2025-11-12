@@ -71,7 +71,7 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
                   "prix": p.prix,
                   "image": p.image,
                   "etat": p.etat,
-                  "dimension": p.dimension, // ✅ singular
+                  // ✅ singular
                 })
             .toList();
 

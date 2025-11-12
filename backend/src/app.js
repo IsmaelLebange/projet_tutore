@@ -7,6 +7,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const annonceRoutes = require('./routes/annonceRoutes');
 const categorieRoutes = require('./routes/categorieRoutes');
 const produitRoutes = require('./routes/produitRoutes'); 
+const serviceRoutes = require('./routes/serviceRoutes');
+const panierRoutes = require('./routes/panierRoutes');
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/annonces', annonceRoutes);
 app.use('/api/categories', categorieRoutes);
 app.use('/api/produits', produitRoutes);
+app.use('/api/services', serviceRoutes); 
+app.use('/api/panier', panierRoutes); 
 
 
 app.use((req, res, next) => {

@@ -39,7 +39,6 @@ class ListeAnnonces extends StatelessWidget {
             description: annonce['description'],
             typeProduit: annonce['typeProduit'],
             categorieProduit: annonce['categorieProduit'],
-            dimension: annonce['dimension'], // ✅ AJOUT (si présent)
             etat: annonce['etat'], // ✅ AJOUT (si présent)
             prix: annonce['prix'],
             image: annonce['image'],

@@ -6,6 +6,7 @@ const PhotoProduit = require('../models/PhotoProduit');
 const PhotoUtilisateur = require('../models/PhotoUtilisateur');
 const CategorieProduit = require('../models/CategorieProduit');
 const TypeProduit = require('../models/TypeProduit');
+const { Op } = require('sequelize');
 
 class ProduitService {
   
@@ -102,6 +103,13 @@ class ProduitService {
       // Formater réponse
       const produitsFormates = produits.map(p => {
         const pJson = p.toJSON();
+         if (!pJson.type || !pJson.type.categorie) {
+          console.warn('⚠️ Produit sans type/catégorie:', {
+            id: pJson.annonce?.id,
+            id_type: pJson.id_type,
+            type: pJson.type,
+          });
+        }
         return {
           id: pJson.annonce.id,
           titre: pJson.annonce.titre,
@@ -111,7 +119,7 @@ class ProduitService {
           statut: pJson.annonce.statut_annonce,
           image: pJson.photos && pJson.photos.length > 0 ? pJson.photos[0].url : null,
           etat: pJson.etat,
-          dimension: pJson.dimension,
+          
           categorieProduit: pJson.type?.categorie?.nom_categorie || 'Non définie',
           typeProduit: pJson.type?.nom_type || 'Non défini',
           vendeur: {
@@ -206,7 +214,6 @@ class ProduitService {
         statut: pJson.annonce.statut_annonce,
         images: pJson.photos.map(photo => photo.url),
         etat: pJson.etat,
-        dimension: pJson.dimension,
         categorieProduit: pJson.type?.categorie?.nom_categorie || 'Non définie',
         typeProduit: pJson.type?.nom_type || 'Non défini',
         vendeur: {

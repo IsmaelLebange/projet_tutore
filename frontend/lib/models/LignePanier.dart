@@ -1,13 +1,13 @@
 class LignePanier {
   final int id;
   final int quantite;
-  final String type; // 'Produit' ou 'Service'
+  final String type;
   final int itemId;
   final int annonceId;
   final String titre;
   final String description;
-  final double prixUnitaire;
-  final double sousTotal;
+  final num prixUnitaire;
+  final num sousTotal;
   final String? image;
   final Map<String, dynamic> vendeur;
 
@@ -34,24 +34,26 @@ class LignePanier {
       annonceId: json['annonceId'],
       titre: json['titre'],
       description: json['description'],
-      prixUnitaire: (json['prixUnitaire'] as num).toDouble(),
-      sousTotal: (json['sousTotal'] as num).toDouble(),
+      prixUnitaire: json['prixUnitaire'],
+      sousTotal: json['sousTotal'],
       image: json['image'],
-      vendeur: json['vendeur'] as Map<String, dynamic>,
+      vendeur: json['vendeur'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'quantite': quantite,
-    'type': type,
-    'itemId': itemId,
-    'annonceId': annonceId,
-    'titre': titre,
-    'description': description,
-    'prixUnitaire': prixUnitaire,
-    'sousTotal': sousTotal,
-    'image': image,
-    'vendeur': vendeur,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'quantite': quantite,
+      'type': type,
+      'itemId': itemId,
+      'annonceId': annonceId,
+      'titre': titre,
+      'description': description,
+      'prixUnitaire': prixUnitaire,
+      'sousTotal': sousTotal,
+      'image': image,
+      'vendeur': vendeur,
+    };
+  }
 }

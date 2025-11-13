@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/LignePanier.dart';
 import '../../models/ComptePaiement.dart';
 import '../../services/comptePaiementService.dart';
 import '../../services/panierService.dart';
@@ -6,7 +7,6 @@ import '../../composants/BarreRetour.dart';
 import '../../composants/UserGate.dart';
 
 class ConfirmationCommande extends StatefulWidget {
-  // ✅ Paramètre optionnel avec récupération auto si null
   final Map<String, dynamic>? panierData;
 
   const ConfirmationCommande({super.key, this.panierData});
@@ -29,7 +29,7 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
     super.initState();
     _comptesFuture = _comptesService.obtenirComptes();
     
-    // ✅ Si pas de données passées, les récupérer
+    // Si pas de données passées, les récupérer
     if (widget.panierData != null) {
       _panierFuture = Future.value(widget.panierData!);
     } else {
@@ -103,8 +103,18 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
             }
 
             final panierData = panierSnapshot.data!;
-            final lignes = panierData['lignes'] as List;
+            final lignesRaw = panierData['lignes'] as List;
             final total = panierData['total'] as num;
+
+            // ✅ Gérer les données en Map (depuis panier formaté)
+            final lignes = lignesRaw.map((item) {
+              if (item is Map<String, dynamic>) {
+                return item;
+              } else if (item is LignePanier) {
+                return item.toJson();
+              }
+              return item as Map<String, dynamic>;
+            }).toList();
 
             if (lignes.isEmpty) {
               return Center(
@@ -147,10 +157,50 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
                                   padding: const EdgeInsets.symmetric(vertical: 4),
                                   child: Row(
                                     children: [
+                                      // Image miniature
+                                      if (ligne['image'] != null && ligne['image'].toString().isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 8),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: Image.network(
+                                              ligne['image'],
+                                              width: 40,
+                                              height: 40,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => Container(
+                                                width: 40,
+                                                height: 40,
+                                                color: Colors.grey[300],
+                                                child: const Icon(Icons.broken_image, size: 20),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      // Détails
                                       Expanded(
-                                        child: Text('${ligne['titre']} (x${ligne['quantite']})'),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${ligne['titre']} (x${ligne['quantite']})',
+                                              style: const TextStyle(fontWeight: FontWeight.w500),
+                                            ),
+                                            Text(
+                                              '${ligne['prixUnitaire'].toStringAsFixed(0)} FC/unité',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      Text('${ligne['sousTotal'].toStringAsFixed(0)} FC'),
+                                      // Prix total ligne
+                                      Text(
+                                        '${ligne['sousTotal'].toStringAsFixed(0)} FC',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
                                     ],
                                   ),
                                 )).toList(),
@@ -162,7 +212,11 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                     ),
                                     Text('${total.toStringAsFixed(0)} FC',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold, 
+                                          fontSize: 16,
+                                          color: Colors.green,
+                                        )),
                                   ],
                                 ),
                               ],
@@ -186,7 +240,6 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
                                     const Spacer(),
                                     TextButton.icon(
                                       onPressed: () {
-                                        // ✅ Navigation directe vers gestion comptes (à créer)
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                                         );

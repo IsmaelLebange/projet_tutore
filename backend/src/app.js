@@ -9,6 +9,8 @@ const categorieRoutes = require('./routes/categorieRoutes');
 const produitRoutes = require('./routes/produitRoutes'); 
 const serviceRoutes = require('./routes/serviceRoutes');
 const panierRoutes = require('./routes/panierRoutes');
+const comptePaiementRoutes = require('./routes/comptePaiementRoutes');
+const notificationRoutes=require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -22,7 +24,8 @@ app.use('/api/categories', categorieRoutes);
 app.use('/api/produits', produitRoutes);
 app.use('/api/services', serviceRoutes); 
 app.use('/api/panier', panierRoutes); 
-
+app.use('/api/notifications', notificationRoutes); 
+app.use('/api/comptes-paiement', comptePaiementRoutes);
 
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Route non trouvée. Vérifiez l\'URL.' });

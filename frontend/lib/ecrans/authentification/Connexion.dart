@@ -71,7 +71,7 @@ class _ConnexionState extends State<Connexion> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BarrePrincipale(titre: "Connexion"),
-
+      drawer: MenuPrincipal(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),

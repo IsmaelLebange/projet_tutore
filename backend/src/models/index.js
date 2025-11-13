@@ -1,6 +1,4 @@
 // src/models/index.js
-// Ce fichier assure que tous les modèles sont chargés par Sequelize pour la synchronisation
-
 require('./Adresse'); 
 require('./utilisateur'); 
 require('./ComptePaiement'); 
@@ -23,5 +21,4 @@ require('./Transaction');
 require('./LigneCommande');
 require('./Notation');
 require('./Message');
-
-// Le fichier n'a pas besoin d'exporter quoi que ce soit si son seul but est de charger les modèles
+require('./Notification'); // ✅ AJOUT

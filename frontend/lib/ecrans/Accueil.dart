@@ -1,7 +1,4 @@
-// DANS Accueil.dart
-
 import 'package:flutter/material.dart';
-// L'import de BarrePrincipale.dart contient maintenant MenuPrincipal.
 import 'package:frontend/composants/BarrePrincipale.dart'; 
 import '../composants/ChampRecherche.dart';
 import '../composants/BarreCategories.dart';
@@ -22,8 +19,6 @@ class Accueil extends StatelessWidget {
       // 🚨 UTILISATION DE TA BARRE PRINCIPALE
       appBar: const BarrePrincipale(titre: "Accueil"), 
       
-      // 🚨 UTILISATION DE TON MENU PRINCIPAL
-      // Assumes que MenuPrincipal est accessible ici, soit via un import implicite, soit dans BarrePrincipale.dart
       drawer: MenuPrincipal(),
       
       body: SingleChildScrollView(

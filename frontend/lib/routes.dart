@@ -16,8 +16,9 @@ import '../tests/TestCatalogue';
 import 'package:frontend/navigation/NavigateurPrincipale.dart';
 import 'ecrans/annonces/CatalogueServices.dart';
 import 'ecrans/authentification/Connexion.dart';
-import '../ecrans/Panier.dart';
 import 'ecrans/administration/Administration.dart';
+import '../ecrans/transaction/Panier.dart';
+import 'ecrans/message/Notifications.dart'; 
 
 
 Map<String, WidgetBuilder> getRoutes() {
@@ -40,6 +41,6 @@ Map<String, WidgetBuilder> getRoutes() {
     '/admin/stats': (context) =>  StatistiquesAdmin(),
     '/admin/litiges': (context) => ModerationLitigesAdmin(),
     '/admin/create':(context) => CreationAdminForm(),
-    // ...
+    '/notifications': (context) => const Notifications(),
   };
 }

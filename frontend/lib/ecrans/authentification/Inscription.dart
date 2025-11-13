@@ -73,6 +73,7 @@ class _InscriptionState extends State<Inscription> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BarrePrincipale(titre: "Inscription"),
+      drawer: MenuPrincipal(),
       body: Center( 
         child: ConstrainedBox( 
           constraints: const BoxConstraints(maxWidth: 400), 

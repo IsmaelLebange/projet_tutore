@@ -26,9 +26,18 @@ class BadgeNotification extends StatelessWidget {
                 color: Colors.red,
                 shape: BoxShape.circle,
               ),
+              constraints: const BoxConstraints(
+                minWidth: 16,
+                minHeight: 16,
+              ),
               child: Text(
-                "$count",
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                count > 99 ? '99+' : '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),

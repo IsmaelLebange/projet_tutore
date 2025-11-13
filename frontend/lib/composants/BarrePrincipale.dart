@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import '../services/notificationService.dart';
+import '../models/Notification.dart';
+import 'BadgeNotification.dart';
 
 class BarrePrincipale extends StatelessWidget implements PreferredSizeWidget {
   final String titre;
@@ -9,10 +11,8 @@ class BarrePrincipale extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      
       backgroundColor: Theme.of(context).primaryColor,
-      elevation: 4, 
-
+      elevation: 4,
       title: Text(
         titre,
         style: const TextStyle(
@@ -22,9 +22,7 @@ class BarrePrincipale extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-
-      
-      leading: Builder( 
+      leading: Builder(
         builder: (context) => IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {
@@ -32,8 +30,23 @@ class BarrePrincipale extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ),
-      // ✅ Ajout icône Panier
       actions: [
+        // Badge notifications
+        FutureBuilder<List<NotificationModel>>(
+          future: NotificationService().obtenirNotifications(),
+          builder: (context, snapshot) {
+            final count = snapshot.hasData
+                ? snapshot.data!.where((n) => !n.estLu).length
+                : 0;
+            return BadgeNotification(
+              count: count,
+              child: IconButton(
+                icon: const Icon(Icons.notifications, color: Colors.white),
+                onPressed: () => Navigator.pushNamed(context, '/notifications'),
+              ),
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.shopping_cart, color: Colors.white),
           onPressed: () {
@@ -52,9 +65,8 @@ class MenuPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Column( 
+      child: Column(
         children: [
-    
           DrawerHeader(
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
@@ -94,10 +106,9 @@ class MenuPrincipal extends StatelessWidget {
               ],
             ),
           ),
-          
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero, 
+              padding: EdgeInsets.zero,
               children: [
                 _buildListTile(context, 'Accueil', Icons.home, '/accueil'),
                 _buildListTile(context, 'Produits', Icons.store, '/catalogueProduits'),
@@ -106,8 +117,7 @@ class MenuPrincipal extends StatelessWidget {
                 _buildListTile(context, 'Panier', Icons.shopping_cart, '/panier'),
                 _buildListTile(context, 'Messages', Icons.message, '/messages'),
 
-               
-                const Divider(height: 1, thickness: 1), 
+                const Divider(height: 1, thickness: 1),
 
                 _buildListTile(context, 'Profil', Icons.account_circle, '/profil'),
                 _buildListTile(context, 'Se connecter', Icons.login, '/connexion'),
@@ -120,7 +130,6 @@ class MenuPrincipal extends StatelessWidget {
     );
   }
 
-  
   Widget _buildListTile(BuildContext context, String title, IconData icon, String route) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).primaryColor),

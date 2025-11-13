@@ -16,7 +16,6 @@ import '../ecrans/ProfilUtilisateur.dart';
 import '../ecrans/Parametres.dart';
 import '../ecrans/message/Messagerie.dart';
 import '../ecrans/Favoris.dart';
-import '../ecrans/Panier.dart';
 import '../ecrans/administration/Administration.dart';
 
 
@@ -82,11 +81,7 @@ class _NavigateurPrincipalState extends State<NavigateurPrincipal> {
               title: Text("Favoris"),
               onTap: () => _changerPage(AjoutAnnonce()),
             ),
-            ListTile(
-              leading: Icon(Icons.shopping_cart),
-              title: Text("Panier"),
-              onTap: () => _changerPage(Panier()),
-            ),
+            
 
             ListTile(
               leading: Icon(Icons.message),

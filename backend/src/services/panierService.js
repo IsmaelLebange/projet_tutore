@@ -7,16 +7,14 @@ const Annonce = require('../models/Annonce');
 const Utilisateur = require('../models/utilisateur');
 const PhotoProduit = require('../models/PhotoProduit');
 const PhotoService = require('../models/PhotoService');
+const notificationService = require('./notificationService'); // ✅ AJOUT
 
 class PanierService {
-
-    
   /**
    * Récupérer le panier d'un utilisateur (transaction en attente + lignes "En_panier")
    */
   async obtenirPanier(userId) {
     try {
-      // Trouver ou créer une transaction "En_attente" pour cet utilisateur (panier actif)
       let transaction = await Transaction.findOne({
         where: {
           id_acheteur: userId,
@@ -25,11 +23,9 @@ class PanierService {
       });
 
       if (!transaction) {
-        // Pas de panier actif
         return { transaction: null, lignes: [], total: 0 };
       }
 
-      // Récupérer les lignes de commande du panier
       const lignes = await LigneCommande.findAll({
         where: {
           id_transaction: transaction.id,
@@ -44,7 +40,7 @@ class PanierService {
               {
                 model: Annonce,
                 as: 'annonce',
-                attributes: ['id', 'titre', 'description', 'prix'],
+                attributes: ['id', 'titre', 'description', 'prix', 'id_utilisateur'], // ✅ FIX: id_utilisateur
                 include: [
                   {
                     model: Utilisateur,
@@ -69,7 +65,7 @@ class PanierService {
               {
                 model: Annonce,
                 as: 'annonce',
-                attributes: ['id', 'titre', 'description', 'prix'],
+                attributes: ['id', 'titre', 'description', 'prix', 'id_utilisateur'], // ✅ FIX: id_utilisateur
                 include: [
                   {
                     model: Utilisateur,
@@ -89,7 +85,6 @@ class PanierService {
         ]
       });
 
-      // Formater les lignes
       const lignesFormatees = lignes.map(l => {
         const lJson = l.toJSON();
         const isProduit = !!lJson.produit;
@@ -137,19 +132,17 @@ class PanierService {
    */
   async ajouterAuPanier(userId, { type, itemId, quantite = 1 }) {
     try {
-      // Valider le type
       if (!['Produit', 'Service'].includes(type)) {
         throw new Error('Type invalide (doit être "Produit" ou "Service")');
       }
 
-      // Récupérer l'annonce (pour le prix et vérifier l'existence)
       const Model = type === 'Produit' ? Produit : Service;
       const item = await Model.findByPk(itemId, {
         include: [
           {
             model: Annonce,
             as: 'annonce',
-            attributes: ['id', 'prix', 'id_vendeur', 'statut_annonce']
+            attributes: ['id', 'prix', 'id_utilisateur', 'statut_annonce'] // ✅ FIX: id_utilisateur
           }
         ]
       });
@@ -162,11 +155,10 @@ class PanierService {
         throw new Error('Cette annonce n\'est plus disponible');
       }
 
-      if (item.annonce.id_vendeur === userId) {
+      if (item.annonce.id_utilisateur === userId) { // ✅ FIX: id_utilisateur
         throw new Error('Vous ne pouvez pas acheter votre propre annonce');
       }
 
-      // Trouver ou créer transaction "En_attente"
       let transaction = await Transaction.findOne({
         where: {
           id_acheteur: userId,
@@ -175,18 +167,16 @@ class PanierService {
       });
 
       if (!transaction) {
-        // Créer une transaction temporaire (on définira le vendeur final à la validation)
         transaction = await Transaction.create({
           id_acheteur: userId,
-          id_vendeur: item.annonce.id_vendeur, // vendeur du premier item
-          id_compte_paiement_vendeur: 1, // placeholder (sera mis à jour à la validation)
+          id_vendeur: item.annonce.id_utilisateur, // ✅ FIX: id_utilisateur
+          id_compte_paiement_vendeur: 1,
           montant: 0,
           statut_transaction: 'En_attente',
           commission: 0
         });
       }
 
-      // Vérifier si l'item est déjà dans le panier
       const ligneExistante = await LigneCommande.findOne({
         where: {
           id_transaction: transaction.id,
@@ -196,12 +186,10 @@ class PanierService {
       });
 
       if (ligneExistante) {
-        // Incrémenter la quantité
         ligneExistante.quantite += quantite;
         await ligneExistante.save();
         return { message: 'Quantité mise à jour', ligne: ligneExistante };
       } else {
-        // Créer nouvelle ligne
         const nouvelleLigne = await LigneCommande.create({
           id_transaction: transaction.id,
           quantite,
@@ -275,7 +263,6 @@ class PanierService {
 
       await ligne.destroy();
 
-      // Si le panier est vide, supprimer la transaction
       const restant = await LigneCommande.count({
         where: { id_transaction: ligne.id_transaction, etat: 'En_panier' }
       });
@@ -320,10 +307,9 @@ class PanierService {
   }
 
   /**
-   * Valider le panier (passer en "Confirmée")
-   * TODO: logique de paiement, mise à jour vendeur/compte, etc.
+   * Valider le panier → Commande "En_attente_confirmation" + Notifications
    */
-  async validerPanier(userId, comptePaiementVendeurId) {
+  async validerPanier(userId, comptePaiementId) {
     try {
       const transaction = await Transaction.findOne({
         where: { id_acheteur: userId, statut_transaction: 'En_attente' },
@@ -340,7 +326,7 @@ class PanierService {
         throw new Error('Panier vide ou introuvable');
       }
 
-      // Calculer le montant total
+      // Calculer montant + commission
       const lignes = await LigneCommande.findAll({
         where: { id_transaction: transaction.id, etat: 'En_panier' },
         include: [
@@ -348,43 +334,62 @@ class PanierService {
             model: Produit,
             as: 'produit',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
           },
           {
             model: Service,
             as: 'service',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
           }
         ]
       });
 
       const montantTotal = lignes.reduce((sum, l) => {
-        const prix = l.produit ? l.produit.annonce.prix : l.service.annonce.prix;
-        return sum + (prix * l.quantite);
+        const annonce = l.produit?.annonce || l.service?.annonce;
+        if (annonce.statut_annonce !== 'Active') {
+          throw new Error(`Article ${annonce.titre} n'est plus disponible`);
+        }
+        return sum + (annonce.prix * l.quantite);
       }, 0);
 
-      const commission = montantTotal * 0.05; // 5% de commission exemple
+      const commission = montantTotal * 0.05; // 5% commission
 
-      // Mettre à jour la transaction
+      // Mettre à jour transaction
       transaction.montant = montantTotal;
       transaction.commission = commission;
-      transaction.statut_transaction = 'Confirmée';
-      transaction.id_compte_paiement_vendeur = comptePaiementVendeurId;
+      transaction.statut_transaction = 'En_attente_confirmation'; // ✅ NOUVEAU STATUT
+      transaction.id_compte_paiement_vendeur = comptePaiementId;
+      transaction.confirmation_acheteur = false; // ✅ AJOUT pour suivi
+      transaction.confirmation_vendeur = false; // ✅ AJOUT pour suivi
       await transaction.save();
 
-      // Mettre à jour les lignes
+      // Mettre à jour lignes
       await LigneCommande.update(
-        { etat: 'Confirmée' },
+        { etat: 'En_attente_confirmation' },
         { where: { id_transaction: transaction.id, etat: 'En_panier' } }
       );
 
+      // ✅ Changer statut annonces → "En_attente"
+      for (const ligne of lignes) {
+        const annonceId = ligne.produit?.annonce.id || ligne.service?.annonce.id;
+        await Annonce.update(
+          { statut_annonce: 'En_attente' },
+          { where: { id: annonceId } }
+        );
+      }
+
+      // ✅ Envoyer notifications
+      const { codeTransaction } = await notificationService.notifierNouvelleCommande(transaction.id);
+
       return {
-        message: 'Commande validée',
+        message: 'Commande validée et envoyée au vendeur',
+        codeTransaction,
         transaction: {
           id: transaction.id,
           montant: montantTotal,
-          commission
+          commission,
+          statut: 'En_attente_confirmation'
         }
       };
 

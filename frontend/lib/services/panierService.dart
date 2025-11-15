@@ -144,21 +144,23 @@ class PanierService {
   Future<Map<String, dynamic>> validerPanier(int comptePaiementVendeurId) async {
     try {
       final uri = Uri.parse('$baseUrl/valider');
-      print('✅ POST $uri');
+      print('✅ POST $uri avec comptePaiementId: $comptePaiementVendeurId'); // ✅ Debug ajouté
 
       final response = await http.post(
         uri,
         headers: await _getHeaders(),
-        body: json.encode({'comptePaiementVendeurId': comptePaiementVendeurId}),
+        body: json.encode({'comptePaiementId': comptePaiementVendeurId}), // ✅ FIX: nom unifié
       );
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
+        print('❌ Erreur response: ${response.body}'); // ✅ Debug ajouté
         throw Exception('Erreur ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       print('❌ Erreur validerPanier: $e');
+      print('echec');
       rethrow;
     }
   }

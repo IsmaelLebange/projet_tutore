@@ -9,6 +9,9 @@ const TypeService = require('../models/TypeService');
 const PhotoProduit = require('../models/PhotoProduit');
 const PhotoService = require('../models/PhotoService');
 const Utilisateur = require('../models/utilisateur'); // ⚠️ AJOUT
+const ComptePaiement = require('../models/ComptePaiement'); 
+
+
 
 exports.ajouterAnnonce = async (req, res) => {
   console.log('📝 === AJOUT ANNONCE ===');
@@ -17,7 +20,6 @@ exports.ajouterAnnonce = async (req, res) => {
   console.log('User ID:', req.idUtilisateur);
 
   try {
-    // ⚠️ CORRECTION : req.utilisateur n'existe pas, utilise req.idUtilisateur
     const utilisateurId = req.idUtilisateur;
     
     if (!utilisateurId) {
@@ -27,7 +29,7 @@ exports.ajouterAnnonce = async (req, res) => {
 
     console.log('✅ Utilisateur authentifié, ID:', utilisateurId);
 
-    // ⚠️ CORRECTION : Récupérer l'utilisateur depuis la DB
+    // Récupérer l'utilisateur depuis la DB
     const utilisateur = await Utilisateur.findByPk(utilisateurId);
     
     if (!utilisateur) {
@@ -44,7 +46,23 @@ exports.ajouterAnnonce = async (req, res) => {
 
     console.log('✅ Compte actif');
 
-    // ⚠️ Validation des données
+    // ✅ VÉRIFICATION OBLIGATOIRE : Le vendeur DOIT avoir au moins 1 compte de paiement
+    const comptesVendeur = await ComptePaiement.findAll({
+      where: { id_utilisateur: utilisateurId }
+    });
+
+    if (comptesVendeur.length === 0) {
+      console.log('❌ Aucun compte de paiement trouvé pour le vendeur');
+      return res.status(400).json({ 
+        message: 'Vous devez avoir au moins un compte de paiement pour poster une annonce.',
+        code: 'COMPTE_PAIEMENT_REQUIS',
+        action: 'CREER_COMPTE_PAIEMENT'
+      });
+    }
+
+    console.log(`✅ Vendeur a ${comptesVendeur.length} compte(s) de paiement`);
+
+    // Validation des données
     const { titre, description, prix, type, categorie, typeSpecifique } = req.body;
     
     if (!titre || !description || !prix || !type || !categorie || !typeSpecifique) {
@@ -64,14 +82,14 @@ exports.ajouterAnnonce = async (req, res) => {
 
     console.log('✅ Données complètes validées');
 
-    // 🔹 Création de l'annonce principale
+    // Création de l'annonce principale
     console.log('📝 Création annonce...');
     const annonce = await AnnonceService.creerAnnonce({
       titre,
       description,
       prix: parseFloat(prix),
       id_utilisateur: utilisateur.id,
-      id_adresse: utilisateur.id_adresse_fixe || null, // ⚠️ Gestion si null
+      id_adresse: utilisateur.id_adresse_fixe || null,
       date_publication: new Date(),
     });
 
@@ -79,7 +97,7 @@ exports.ajouterAnnonce = async (req, res) => {
 
     let objetCree = null;
 
-    // 🔹 Traitement selon le type (Produit ou Service)
+    // Traitement selon le type (Produit ou Service)
     if (type === 'produit') {
       console.log('🛒 Type PRODUIT détecté');
       
@@ -106,7 +124,7 @@ exports.ajouterAnnonce = async (req, res) => {
       objetCree = await ProduitService.creerProduit({
         id_annonce: annonce.id,
         id_type: typeP.id,
-        etat: 'Neuf', // ⚠️ Ou depuis req.body.etat si fourni
+        etat: 'Neuf',
       });
 
       console.log('✅ Produit créé, ID:', objetCree.id);
@@ -148,7 +166,7 @@ exports.ajouterAnnonce = async (req, res) => {
       return res.status(400).json({ message: 'Type doit être "produit" ou "service".' });
     }
 
-    // 🔹 Gestion des fichiers images
+    // Gestion des fichiers images
     if (req.files && req.files.length > 0) {
       console.log(`📷 Traitement de ${req.files.length} image(s)...`);
       
@@ -177,13 +195,12 @@ exports.ajouterAnnonce = async (req, res) => {
       console.log('ℹ️ Aucune image fournie');
     }
 
-    // ⚠️ CORRECTION : annonceJson au lieu de nouvelleAnnonce
     const annonceJson = annonce.toJSON ? annonce.toJSON() : annonce;
     
     console.log('✅✅✅ Annonce ajoutée avec succès, ID:', annonce.id);
 
     return res.status(201).json({ 
-      success: true, // ⚠️ AJOUT pour cohérence avec frontend
+      success: true,
       message: 'Annonce ajoutée avec succès', 
       annonce: annonceJson 
     });
@@ -199,6 +216,7 @@ exports.ajouterAnnonce = async (req, res) => {
     });
   }
 };
+
 
 exports.obtenirAnnonces = async (req, res) => {
   try {

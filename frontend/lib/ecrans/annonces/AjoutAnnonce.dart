@@ -7,6 +7,7 @@ import '../../models/Produit.dart';
 import '../../models/Service.dart';
 import '../../composants/BarreRetour.dart';
 import '../../composants/UserGate.dart';
+import '../transaction/GestionComptesPaiement.dart'; // ✅ AJOUT
 
 class AjoutAnnonce extends StatefulWidget {
   @override
@@ -53,14 +54,13 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
 
       print('🟡 Chargement terminé avec succès');
     } catch (e, stackTrace) {
-
       setState(() {
         _chargement = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Erreur détaillée: $e :$stackTrace")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur détaillée: $e :$stackTrace"))
+      );
     }
   }
 
@@ -74,7 +74,6 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
     _formKey.currentState!.save();
 
     try {
-
       final annonce = (_type == "produit")
           ? Produit(
               id: null,
@@ -101,10 +100,83 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
         const SnackBar(content: Text("Annonce ajoutée avec succès ✅")),
       );
       Navigator.pop(context);
+
     } catch (e) {
-      ScaffoldMessenger.of(
+      print('❌ Erreur ajout annonce: $e');
+      
+      // ✅ GESTION SPÉCIFIQUE : Compte paiement manquant
+      if (e.toString().contains('COMPTE_PAIEMENT_REQUIS')) {
+        await _gererComptePaiementManquant();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur: $e"))
+        );
+      }
+    }
+  }
+
+  // ✅ NOUVELLE MÉTHODE : Gérer l'absence de compte paiement
+  Future<void> _gererComptePaiementManquant() async {
+    final resultat = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, // Obligatoire de choisir
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.payment, color: Colors.orange),
+            const SizedBox(width: 8),
+            const Text('Compte de paiement requis'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Pour poster une annonce, vous devez avoir au moins un compte de paiement configuré.',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Cela nous permet de savoir comment vous payer lorsque vous vendez vos produits/services.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.add),
+            label: const Text('Ajouter un compte'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (resultat == true) {
+      // Naviguer vers la gestion des comptes de paiement
+      final compteAjoute = await Navigator.push<bool>(
         context,
-      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
+        MaterialPageRoute(
+          builder: (_) => const GestionComptesPaiement(),
+        ),
+      );
+
+      // Si un compte a été ajouté, relancer la soumission
+      if (compteAjoute == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Compte ajouté ! Vous pouvez maintenant publier votre annonce.')),
+        );
+        // Optionnel : relancer automatiquement la soumission
+        await _soumettreAnnonce();
+      }
     }
   }
 
@@ -123,6 +195,36 @@ class _AjoutAnnonceState extends State<AjoutAnnonce> {
           key: _formKey,
           child: ListView(
             children: [
+              // ✅ AJOUT : Card d'information compte paiement
+              Card(
+                color: Colors.blue[50],
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Assurez-vous d\'avoir un compte de paiement configuré pour recevoir vos gains.',
+                          style: TextStyle(fontSize: 13, color: Colors.blue),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const GestionComptesPaiement()),
+                          );
+                        },
+                        child: const Text('Gérer', style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: "Titre",

@@ -16,7 +16,6 @@ class ComptePaiementService {
         { where: { id_utilisateur: userId } }
       );
     }
-
     return await ComptePaiement.create({
       id_utilisateur: userId,
       numero_compte,

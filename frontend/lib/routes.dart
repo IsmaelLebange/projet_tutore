@@ -18,8 +18,8 @@ import 'ecrans/annonces/CatalogueServices.dart';
 import 'ecrans/authentification/Connexion.dart';
 import 'ecrans/administration/Administration.dart';
 import '../ecrans/transaction/Panier.dart';
-import 'ecrans/message/Notifications.dart'; 
-
+import 'ecrans/message/Notifications.dart';
+import 'ecrans/transaction/GestionComptesPaiement.dart';
 
 Map<String, WidgetBuilder> getRoutes() {
   return {
@@ -42,5 +42,6 @@ Map<String, WidgetBuilder> getRoutes() {
     '/admin/litiges': (context) => ModerationLitigesAdmin(),
     '/admin/create':(context) => CreationAdminForm(),
     '/notifications': (context) => const Notifications(),
+    '/comptes-paiement': (context) => const GestionComptesPaiement(), // ✅ AJOUT
   };
 }

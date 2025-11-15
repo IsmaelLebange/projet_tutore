@@ -3,7 +3,6 @@ const Utilisateur = require('../models/utilisateur');
 const Transaction = require('../models/Transaction');
 
 class NotificationService {
-  // Envoyer notification à un utilisateur
   async envoyerNotification(userId, { titre, message, type, transactionId = null }) {
     try {
       return await Notification.create({
@@ -19,24 +18,54 @@ class NotificationService {
     }
   }
 
-  // Notifications d'une nouvelle commande
   async notifierNouvelleCommande(transactionId) {
     try {
+      console.log('🔍 notifierNouvelleCommande appelée avec transactionId:', transactionId); // ✅ DEBUG
+
+      if (!transactionId) {
+        throw new Error('transactionId requis');
+      }
+
       const transaction = await Transaction.findByPk(transactionId, {
         include: [
-          { model: Utilisateur, as: 'acheteur', attributes: ['prenom', 'nom'] },
-          { model: Utilisateur, as: 'vendeur', attributes: ['prenom', 'nom'] }
+          { 
+            model: Utilisateur, 
+            as: 'acheteur', 
+            attributes: ['prenom', 'nom'],
+            foreignKey: 'id_acheteur' // ✅ FIX: Spécifier la clé
+          },
+          { 
+            model: Utilisateur, 
+            as: 'vendeur', 
+            attributes: ['prenom', 'nom'],
+            foreignKey: 'id_vendeur' // ✅ FIX: Spécifier la clé
+          }
         ]
       });
 
-      if (!transaction) throw new Error('Transaction introuvable');
+      console.log('🔍 Transaction trouvée:', transaction ? `ID: ${transaction.id}` : 'NULL'); // ✅ DEBUG
+
+      if (!transaction) {
+        throw new Error('Transaction introuvable');
+      }
+
+      // ✅ Vérifier que les relations existent
+      if (!transaction.id_acheteur || !transaction.id_vendeur) {
+        throw new Error('Transaction incomplète: acheteur ou vendeur manquant');
+      }
 
       const codeTransaction = `CMD-${transaction.id.toString().padStart(6, '0')}`;
+
+      console.log('🔍 Envoi notifications:', {
+        vendeur: transaction.id_vendeur,
+        acheteur: transaction.id_acheteur,
+        code: codeTransaction
+      }); // ✅ DEBUG
 
       // Notification au vendeur
       await this.envoyerNotification(transaction.id_vendeur, {
         titre: 'Nouvelle commande reçue',
-        message: `${transaction.acheteur.prenom} ${transaction.acheteur.nom} a passé une commande (${codeTransaction}). Confirmez pour valider la transaction.`,
+        message: `Une nouvelle commande (${codeTransaction}) a été passée. Confirmez pour valider la transaction.`,
         type: 'commande_recue',
         transactionId: transaction.id
       });
@@ -56,11 +85,17 @@ class NotificationService {
     }
   }
 
-  // Confirmer transaction (acheteur/vendeur)
+  // ✅ FIX: Simplifier les autres méthodes avec meilleure gestion d'erreurs
   async confirmerTransaction(userId, transactionId) {
     try {
+      if (!userId || !transactionId) {
+        throw new Error('userId et transactionId requis');
+      }
+
       const transaction = await Transaction.findByPk(transactionId);
-      if (!transaction) throw new Error('Transaction introuvable');
+      if (!transaction) {
+        throw new Error('Transaction introuvable');
+      }
 
       const isAcheteur = transaction.id_acheteur === userId;
       const isVendeur = transaction.id_vendeur === userId;
@@ -69,30 +104,28 @@ class NotificationService {
         throw new Error('Vous n\'êtes pas autorisé à confirmer cette transaction');
       }
 
-      // Marquer confirmation
       if (isAcheteur) {
         transaction.confirmation_acheteur = true;
       } else {
         transaction.confirmation_vendeur = true;
       }
 
-      // Si les deux ont confirmé → transaction validée
       if (transaction.confirmation_acheteur && transaction.confirmation_vendeur) {
         transaction.statut_transaction = 'Validée';
-        const commission = transaction.montant * 0.05; // 5% commission
+        const commission = transaction.montant * 0.05;
         transaction.commission = commission;
 
-        // Notifier les deux parties
+        // Notifications simplifiées
         await this.envoyerNotification(transaction.id_acheteur, {
           titre: 'Transaction validée',
-          message: `Votre commande CMD-${transaction.id.toString().padStart(6, '0')} est validée. Paiement effectué.`,
+          message: `Votre commande CMD-${transaction.id.toString().padStart(6, '0')} est validée.`,
           type: 'transaction_validee',
           transactionId: transaction.id
         });
 
         await this.envoyerNotification(transaction.id_vendeur, {
           titre: 'Transaction validée',
-          message: `Commande CMD-${transaction.id.toString().padStart(6, '0')} validée. Vous recevrez ${(transaction.montant - commission).toFixed(0)} FC.`,
+          message: `Commande CMD-${transaction.id.toString().padStart(6, '0')} validée.`,
           type: 'transaction_validee',
           transactionId: transaction.id
         });
@@ -106,9 +139,12 @@ class NotificationService {
     }
   }
 
-  // Obtenir notifications utilisateur
   async obtenirNotifications(userId) {
     try {
+      if (!userId) {
+        throw new Error('userId requis');
+      }
+
       return await Notification.findAll({
         where: { id_utilisateur: userId },
         include: [
@@ -127,14 +163,19 @@ class NotificationService {
     }
   }
 
-  // Marquer comme lu
   async marquerLu(userId, notificationId) {
     try {
+      if (!userId || !notificationId) {
+        throw new Error('userId et notificationId requis');
+      }
+
       const notification = await Notification.findOne({
         where: { id: notificationId, id_utilisateur: userId }
       });
 
-      if (!notification) throw new Error('Notification introuvable');
+      if (!notification) {
+        throw new Error('Notification introuvable');
+      }
 
       notification.est_lu = true;
       await notification.save();

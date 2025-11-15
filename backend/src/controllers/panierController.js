@@ -1,6 +1,6 @@
 const panierService = require('../services/panierService');
 
-const getUserId = (req) => req.idUtilisateur; // ✅ conforme au middleware
+const getUserId = (req) => req.idUtilisateur;
 
 async function obtenirPanier(req, res) {
   try {
@@ -87,15 +87,18 @@ async function validerPanier(req, res) {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: 'Utilisateur non authentifié' });
 
-    const { comptePaiementVendeurId } = req.body;
-    if (!comptePaiementVendeurId) {
-      return res.status(400).json({ message: 'Compte paiement vendeur requis' });
+    const { comptePaiementId } = req.body; // ✅ FIX: nom unifié
+    if (!comptePaiementId) {
+      return res.status(400).json({ message: 'Compte paiement requis' });
     }
 
-    const resultat = await panierService.validerPanier(userId, comptePaiementVendeurId);
+    console.log('🔑 User:', userId, 'CompteId:', comptePaiementId); // Debug
+
+    const resultat = await panierService.validerPanier(userId, comptePaiementId);
     return res.json(resultat);
   } catch (error) {
     console.error('❌ Erreur controller validerPanier:', error);
+    console.log('erreur', error);
     return res.status(500).json({ message: error.message });
   }
 }

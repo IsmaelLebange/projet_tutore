@@ -15,6 +15,7 @@ const Transaction = sequelize.define('Transaction', {
         allowNull: false,
     },
     statut_transaction: {
+        type: DataTypes.ENUM('En_attente', 'En_attente_confirmation', 'Confirmée', 'Livrée', 'Validée', 'Rejetée'), 
         type: DataTypes.STRING(50),
         allowNull: false,
     },
@@ -25,17 +26,28 @@ const Transaction = sequelize.define('Transaction', {
     id_acheteur: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: Utilisateur, key: 'id' } // FK vers Utilisateur [cite: 198]
+        references: { model: Utilisateur, key: 'id' }
     },
     id_vendeur: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: Utilisateur, key: 'id' } // FK vers Utilisateur [cite: 198]
+        references: { model: Utilisateur, key: 'id' }
     },
     id_compte_paiement_vendeur: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: ComptePaiement, key: 'id' } // FK vers ComptePaiement [cite: 198]
+        references: { model: ComptePaiement, key: 'id' }
+    },
+    // ✅ AJOUT DES NOUVEAUX CHAMPS
+    confirmation_acheteur: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true, // Nullable pour migration
+        defaultValue: false,
+    },
+    confirmation_vendeur: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true, // Nullable pour migration
+        defaultValue: false,
     }
 }, {
     timestamps: false,
@@ -44,7 +56,5 @@ const Transaction = sequelize.define('Transaction', {
 Transaction.belongsTo(Utilisateur, { foreignKey: 'id_acheteur', as: 'acheteur' });
 Transaction.belongsTo(Utilisateur, { foreignKey: 'id_vendeur', as: 'vendeur' });
 Transaction.belongsTo(ComptePaiement, { foreignKey: 'id_compte_paiement_vendeur', as: 'comptePaiementVendeur' });
-
-// Les relations "hasMany" sont dans les modèles Utilisateur/ComptePaiement (fait en J2)
 
 module.exports = Transaction;

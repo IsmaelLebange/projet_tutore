@@ -9,6 +9,16 @@ const CategorieService = require('../models/CategorieService');
 const TypeService = require('../models/TypeService');
 
 class ServiceService {
+
+  async creerService(data) {
+    try {
+      console.log('🔧 Création service avec data:', data);
+      return await Service.create(data);
+    } catch (error) {
+      console.error('❌ Erreur creerService:', error);
+      throw error;
+    }
+  }
   
   async obtenirTousServices(options = {}) {
     try {

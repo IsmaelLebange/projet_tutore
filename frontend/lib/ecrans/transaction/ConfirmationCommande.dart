@@ -240,9 +240,12 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
                                     const Spacer(),
                                     TextButton.icon(
                                       onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                                        );
+                                        // ✅ Navigation vers gestion comptes
+                                        Navigator.pushNamed(context, '/comptes-paiement').then((_) {
+                                          setState(() {
+                                            _comptesFuture = _comptesService.obtenirComptes();
+                                          });
+                                        });
                                       },
                                       icon: const Icon(Icons.add),
                                       label: const Text('Ajouter'),
@@ -269,11 +272,7 @@ class _ConfirmationCommandeState extends State<ConfirmationCommande> {
                                           const Text('Aucun compte de paiement configuré'),
                                           const SizedBox(height: 8),
                                           ElevatedButton.icon(
-                                            onPressed: () {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('Redirection vers gestion des comptes')),
-                                              );
-                                            },
+                                            onPressed: () => Navigator.pushNamed(context, '/comptes-paiement'),
                                             icon: const Icon(Icons.add),
                                             label: const Text('Ajouter un compte'),
                                           ),

@@ -9,7 +9,15 @@ const TypeProduit = require('../models/TypeProduit');
 const { Op } = require('sequelize');
 
 class ProduitService {
-  
+   async creerProduit(data) {
+    try {
+      console.log('🛒 Création produit avec data:', data);
+      return await Produit.create(data);
+    } catch (error) {
+      console.error('❌ Erreur creerProduit:', error);
+      throw error;
+    }
+  }
   async obtenirTousProduits(options = {}) {
     try {
       const { 

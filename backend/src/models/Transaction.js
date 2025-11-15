@@ -36,6 +36,16 @@ const Transaction = sequelize.define('Transaction', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: { model: ComptePaiement, key: 'id' } // FK vers ComptePaiement [cite: 198]
+    },
+    confirmation_acheteur: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    confirmation_vendeur: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
     }
 }, {
     timestamps: false,

@@ -334,13 +334,13 @@ class PanierService {
             model: Produit,
             as: 'produit',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['id', 'prix', 'statut_annonce'] }]
           },
           {
             model: Service,
             as: 'service',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['id', 'prix', 'statut_annonce'] }]
           }
         ]
       });

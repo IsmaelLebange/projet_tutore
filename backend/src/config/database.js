@@ -24,7 +24,7 @@ const connectDB = async () => {
         
         require('../models/index');
 
-        const syncOption = process.env.NODE_ENV === 'production' ? { alter: true } : { force: false };
+        const syncOption = { alter: true }; // Use alter to add new columns without dropping tables
         await sequelize.sync(syncOption);
         
         console.log(`✅ Tables synchronisées (Mode: ${process.env.NODE_ENV || 'development'})`);

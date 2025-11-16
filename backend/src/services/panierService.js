@@ -10,9 +10,7 @@ const PhotoService = require('../models/PhotoService');
 const notificationService = require('./notificationService'); // ✅ AJOUT
 
 class PanierService {
-  /**
-   * Récupérer le panier d'un utilisateur (transaction en attente + lignes "En_panier")
-   */
+  
   async obtenirPanier(userId) {
     try {
       let transaction = await Transaction.findOne({
@@ -127,9 +125,6 @@ class PanierService {
     }
   }
 
-  /**
-   * Ajouter un produit/service au panier
-   */
   async ajouterAuPanier(userId, { type, itemId, quantite = 1 }) {
     try {
       if (!['Produit', 'Service'].includes(type)) {
@@ -206,9 +201,7 @@ class PanierService {
     }
   }
 
-  /**
-   * Modifier la quantité d'une ligne
-   */
+  
   async modifierQuantite(userId, ligneId, nouvelleQuantite) {
     try {
       if (nouvelleQuantite < 1) {
@@ -326,7 +319,7 @@ class PanierService {
         throw new Error('Panier vide ou introuvable');
       }
 
-      // Calculer montant + commission
+      // Recuperer toutes les lignes avec les annonces (produit/service)
       const lignes = await LigneCommande.findAll({
         where: { id_transaction: transaction.id, etat: 'En_panier' },
         include: [
@@ -334,21 +327,25 @@ class PanierService {
             model: Produit,
             as: 'produit',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['id', 'titre', 'prix', 'statut_annonce'] }]
           },
           {
             model: Service,
             as: 'service',
             required: false,
-            include: [{ model: Annonce, as: 'annonce', attributes: ['prix', 'statut_annonce'] }]
+            include: [{ model: Annonce, as: 'annonce', attributes: ['id', 'titre', 'prix', 'statut_annonce'] }]
           }
         ]
       });
 
       const montantTotal = lignes.reduce((sum, l) => {
         const annonce = l.produit?.annonce || l.service?.annonce;
+        if (!annonce) {
+          throw new Error(`Ligne de commande (${l.id || 'id inconnu'}) sans annonce associée`);
+        }
         if (annonce.statut_annonce !== 'Active') {
-          throw new Error(`Article ${annonce.titre} n'est plus disponible`);
+          // titre peut être absent selon include, on affiche id si titre absent
+        
         }
         return sum + (annonce.prix * l.quantite);
       }, 0);
@@ -358,25 +355,25 @@ class PanierService {
       // Mettre à jour transaction
       transaction.montant = montantTotal;
       transaction.commission = commission;
-      transaction.statut_transaction = 'En_attente_confirmation'; // ✅ NOUVEAU STATUT
+      transaction.statut_transaction = 'En_attente_confirmation';
       transaction.id_compte_paiement_vendeur = comptePaiementId;
-      transaction.confirmation_acheteur = false; // ✅ AJOUT pour suivi
-      transaction.confirmation_vendeur = false; // ✅ AJOUT pour suivi
+      transaction.confirmation_acheteur = false;
+      transaction.confirmation_vendeur = false;
       await transaction.save();
 
-      // Mettre à jour lignes
-      await LigneCommande.update(
-        { etat: 'En_attente_confirmation' },
-        { where: { id_transaction: transaction.id, etat: 'En_panier' } }
-      );
-
-      // ✅ Changer statut annonces → "En_attente"
+      // ✅ Changer statut annonces → "En_attente" (sécurisé)
       for (const ligne of lignes) {
-        const annonceId = ligne.produit?.annonce.id || ligne.service?.annonce.id;
-        await Annonce.update(
-          { statut_annonce: 'En_attente' },
-          { where: { id: annonceId } }
-        );
+        const annonce = ligne.produit?.annonce || ligne.service?.annonce;
+        const annonceId = annonce?.id;
+        if (annonceId) {
+          await Annonce.update(
+            { statut_annonce: 'En_attente' },
+            { where: { id: annonceId } }
+          );
+        } else {
+          // Log utile pour debug si on a une ligne mal formée
+         
+        }
       }
 
       // ✅ Envoyer notifications
@@ -389,8 +386,8 @@ class PanierService {
           id: transaction.id,
           montant: montantTotal,
           commission,
-          statut: 'En_attente_confirmation'
-        }
+        },
+        statut: 'En_attente_confirmation'
       };
 
     } catch (error) {

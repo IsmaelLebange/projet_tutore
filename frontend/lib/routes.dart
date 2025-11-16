@@ -20,6 +20,8 @@ import 'ecrans/administration/Administration.dart';
 import '../ecrans/transaction/Panier.dart';
 import 'ecrans/message/Notifications.dart';
 import 'ecrans/transaction/GestionComptesPaiement.dart';
+import 'ecrans/transaction/FacturesList.dart';
+import 'ecrans/transaction/Facture.dart';
 
 Map<String, WidgetBuilder> getRoutes() {
   return {
@@ -43,5 +45,7 @@ Map<String, WidgetBuilder> getRoutes() {
     '/admin/create':(context) => CreationAdminForm(),
     '/notifications': (context) => const Notifications(),
     '/comptes-paiement': (context) => const GestionComptesPaiement(), // ✅ AJOUT
+    '/factures': (context) => const FacturesList(),
+    '/facture': (context) => const Facture(),
   };
 }

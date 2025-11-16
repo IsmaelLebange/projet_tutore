@@ -102,10 +102,23 @@ class _NotificationsState extends State<Notifications> {
                 itemBuilder: (context, index) {
                   final notif = notifications[index];
                   final isTransaction = notif.typeNotification == 'commande_recue';
+                  final canViewFacture = (notif.typeNotification == 'transaction_validee' || 
+                                          notif.typeNotification == 'commande_confirmee') &&
+                                         notif.idTransaction != null;
 
                   return Card(
                     child: ListTile(
-                      onTap: notif.estLu ? null : () => _marquerLu(notif.id),
+                      onTap: () {
+                        if (canViewFacture) {
+                          Navigator.pushNamed(
+                            context,
+                            '/facture',
+                            arguments: notif.idTransaction,
+                          );
+                        } else if (!notif.estLu) {
+                          _marquerLu(notif.id);
+                        }
+                      },
                       leading: CircleAvatar(
                         backgroundColor: _getColorForType(notif.typeNotification),
                         child: Icon(_getIconForType(notif.typeNotification), color: Colors.white),

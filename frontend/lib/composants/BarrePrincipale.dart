@@ -116,6 +116,7 @@ class MenuPrincipal extends StatelessWidget {
                 _buildListTile(context, 'Mes annonces', Icons.list_sharp, '/mesannonces'),
                 _buildListTile(context, 'Panier', Icons.shopping_cart, '/panier'),
                 _buildListTile(context, 'Messages', Icons.message, '/messages'),
+                _buildListTile(context, 'Mes factures', Icons.receipt_long, '/transactions'),
 
                 const Divider(height: 1, thickness: 1),
 

@@ -9,7 +9,9 @@ import 'package:frontend/ecrans/message/Messagerie.dart';
 import 'package:frontend/ecrans/administration/ModerationLitigesAdmin.dart';
 import 'package:frontend/ecrans/administration/StatistiquesAdmin.dart';
 import '../ecrans/Accueil.dart';
+import 'ecrans/AccueilEcommerce.dart';
 import 'ecrans/annonces/CatalogueProduits.dart';
+import 'ecrans/produits/ListeProduits.dart';
 import '../ecrans/ProfilUtilisateur.dart';
 import 'package:frontend/navigation/NavigateurPrincipale.dart';
 import 'ecrans/annonces/CatalogueServices.dart';
@@ -20,13 +22,18 @@ import 'ecrans/message/Notifications.dart';
 import 'ecrans/transaction/GestionComptesPaiement.dart';
 import 'ecrans/transaction/ListeTransactions.dart';
 import 'ecrans/transaction/DetailTransaction.dart';
+import 'ecrans/categories/CategorieMode.dart';
+import 'ecrans/categories/CategorieMaison.dart';
+import 'ecrans/categories/CategorieSports.dart';
+import 'ecrans/categories/CategorieJouets.dart';
+import 'ecrans/produits/DetailProduit.dart';
 
 class AppRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      '/accueil': (context) => Accueil(),
-      '/': (context) => NavigateurPrincipal(),
+      '/': (context) => AccueilEcommerce(),
       '/catalogueProduits': (context) => CatalogueProduits(),
+      '/listeProduits': (context) => const ListeProduitsPage(),
       '/profil': (context) => ProfilUtilisateur(),
       '/catalogueServices': (context) => CatalogueServices(),
       '/connexion': (context) => Connexion(),
@@ -44,6 +51,10 @@ class AppRoutes {
       '/notifications': (context) => const Notifications(),
       '/comptes-paiement': (context) => const GestionComptesPaiement(),
       '/transactions': (context) => const ListeTransactions(),
+      '/categorie/mode': (context) => CategorieMode(),
+      '/categorie/maison': (context) => CategorieMaison(),
+      '/categorie/sports': (context) => CategorieSports(),
+      '/categorie/jouets': (context) => CategorieJouets(),
     };
   }
 
@@ -52,6 +63,12 @@ class AppRoutes {
       final int transactionId = settings.arguments as int;
       return MaterialPageRoute(
         builder: (context) => DetailTransactionPage(transactionId: transactionId),
+      );
+    }
+    if (settings.name == '/detailProduit') {
+      final Map<String, dynamic> produit = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => DetailProduit(produit: produit),
       );
     }
     return null;

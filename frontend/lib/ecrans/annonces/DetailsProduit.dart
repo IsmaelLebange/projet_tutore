@@ -3,6 +3,7 @@ import '../../models/Produit.dart';
 import '../../services/produitService.dart';
 import '../../services/panierService.dart';
 import '../../composants/BarreRetour.dart';
+import '../../composants/ComposantsUI.dart';
 
 class DetailsProduit extends StatefulWidget {
   final int produitId;
@@ -74,7 +75,15 @@ class _DetailsProduitState extends State<DetailsProduit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const BarreRetour(titre: "Détails du produit"),
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: Theme.of(context).primaryColor,
+        elevation: 4,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(48),
+          child: BarreNavigationPrincipale(),
+        ),
+      ),
       body: FutureBuilder<Produit>(
         future: _produitFuture,
         builder: (context, snapshot) {

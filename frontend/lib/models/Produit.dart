@@ -5,11 +5,11 @@ class Produit extends Annonce {
   final String categorieProduit;
 
   Produit({
-    required int? id,
+    int? id,
     required String titre,
     required String description,
     required double prix,
-    required String image,
+    image,
     required this.typeProduit,
     required this.categorieProduit,
     String? etat,

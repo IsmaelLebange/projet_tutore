@@ -10,6 +10,7 @@ const CategorieService = require('../models/CategorieService');
 const TypeProduit = require('../models/TypeProduit');
 const TypeService = require('../models/TypeService');
 
+
 class AnnonceService {
   
   async creerAnnonce(data) {

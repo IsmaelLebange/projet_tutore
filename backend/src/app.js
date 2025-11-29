@@ -12,6 +12,8 @@ const panierRoutes = require('./routes/panierRoutes');
 const comptePaiementRoutes = require('./routes/comptePaiementRoutes');
 const notificationRoutes=require('./routes/notificationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const accueiRoutes=require('./routes/accueilRoutes');
+
 
 const app = express();
 
@@ -28,6 +30,9 @@ app.use('/api/panier', panierRoutes);
 app.use('/api/notifications', notificationRoutes); 
 app.use('/api/comptes-paiement', comptePaiementRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/accueil', accueiRoutes);
+
+// Gestion des routes non trouvées
 
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Route non trouvée. Vérifiez l\'URL.' });

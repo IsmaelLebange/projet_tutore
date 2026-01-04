@@ -26,7 +26,6 @@ class UtilisateurService {
     }
   }
 
-  // 📋 Obtenir le profil utilisateur connecté
   Future<Utilisateur?> getProfil() async {
     final token = await _token();
     if (token == null) return null;

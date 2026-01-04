@@ -1,5 +1,8 @@
 // src/services/accueilService.js
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
+// Utiliser ILIKE sur Postgres, LIKE sur SQLite/Autres
+const ILIKE = (sequelize && sequelize.getDialect && sequelize.getDialect() === 'postgres') ? Op.iLike : Op.like;
 const Annonce = require('../models/Annonce');
 const Utilisateur = require('../models/utilisateur');
 const Adresse = require('../models/Adresse');
@@ -113,8 +116,7 @@ class AccueilService {
 
       const annonces = await Annonce.findAll({
         where: {
-          statut_annonce: 'active',
-          type_annonce: 'vente'
+          statut_annonce: { [ILIKE]: 'active' },
         },
         include: [
           {
@@ -123,9 +125,8 @@ class AccueilService {
             attributes: ['id', 'nom', 'prenom'],
             include: [{
               model: Adresse,
-              as: 'adresses',
+              as: 'adresseFixe',
               attributes: ['ville'],
-              limit: 1
             }]
           },
           {
@@ -134,7 +135,7 @@ class AccueilService {
             required: false,
             include: [
               { model: PhotoProduit, as: 'photos', limit: 1 },
-              { model: CategorieProduit, as: 'categorie' }
+              { model: TypeProduit, as: 'type', required: false, include: [{ model: CategorieProduit, as: 'categorie' }] }
             ]
           },
           {
@@ -143,13 +144,13 @@ class AccueilService {
             required: false,
             include: [
               { model: PhotoService, as: 'photos', limit: 1 },
-              { model: CategorieService, as: 'categorie' }
+              { model: TypeService, as: 'type', required: false, include: [{ model: CategorieService, as: 'categorie' }] }
             ]
           }
         ],
         order: [
           ['date_publication', 'DESC'],
-          ['nombre_vues', 'DESC']
+          // ['nombre_vues', 'DESC'] // supprimé si champ absent
         ],
         limit
       });
@@ -171,7 +172,7 @@ class AccueilService {
 
       const annonces = await Annonce.findAll({
         where: {
-          statut_annonce: 'active'
+          statut_annonce: { [ILIKE]: 'active' }
         },
         include: [
           {
@@ -180,9 +181,8 @@ class AccueilService {
             attributes: ['id', 'nom', 'prenom'],
             include: [{
               model: Adresse,
-              as: 'adresses',
+              as: 'adresseFixe',
               attributes: ['ville'],
-              limit: 1
             }]
           },
           {
@@ -191,7 +191,7 @@ class AccueilService {
             required: false,
             include: [
               { model: PhotoProduit, as: 'photos', limit: 1 },
-              { model: CategorieProduit, as: 'categorie' }
+              { model: TypeProduit, as: 'type', required: false, include: [{ model: CategorieProduit, as: 'categorie' }] }
             ]
           },
           {
@@ -200,7 +200,7 @@ class AccueilService {
             required: false,
             include: [
               { model: PhotoService, as: 'photos', limit: 1 },
-              { model: CategorieService, as: 'categorie' }
+              { model: TypeService, as: 'type', required: false, include: [{ model: CategorieService, as: 'categorie' }] }
             ]
           }
         ],
@@ -223,14 +223,9 @@ class AccueilService {
       console.log('📊 Calcul des statistiques...');
 
       const [totalAnnonces, totalUtilisateurs, produitsActifs] = await Promise.all([
-        Annonce.count({ where: { statut_annonce: 'active' } }),
+        Annonce.count({ where: { statut_annonce: { [ILIKE]: 'active' } } }),
         Utilisateur.count(),
-        Annonce.count({ 
-          where: { 
-            statut_annonce: 'active', 
-            type_annonce: 'vente' 
-          } 
-        })
+        Annonce.count({ where: { statut_annonce: { [ILIKE]: 'active' } } })
       ]);
 
       const stats = {
@@ -265,7 +260,7 @@ class AccueilService {
       console.log(`🔍 Recherche: "${query}" avec options:`, options);
 
       let where = {
-        statut_annonce: 'active'
+        statut_annonce: { [Op.iLike]: 'active' }
       };
 
       // Filtre par type si spécifié
@@ -276,8 +271,8 @@ class AccueilService {
       // Conditions de recherche dans le texte
       if (query && query.trim()) {
         where[Op.or] = [
-          { titre: { [Op.iLike]: `%${query}%` } },
-          { description: { [Op.iLike]: `%${query}%` } }
+          { titre: { [ILIKE]: `%${query}%` } },
+          { description: { [ILIKE]: `%${query}%` } }
         ];
       }
 
@@ -293,33 +288,30 @@ class AccueilService {
         include: [
           {
             model: Utilisateur,
-            as: 'auteurAnnonce',
+            as: 'vendeur',
             attributes: ['id', 'nom', 'prenom'],
             include: [{
               model: Adresse,
-              as: 'adresses',
+              as: 'adresseFixe',
               attributes: ['ville'],
-              limit: 1
             }]
           },
           {
             model: Produit,
             as: 'produit',
             required: false,
-            where: categorie ? { categorie_id: categorie } : undefined,
             include: [
               { model: PhotoProduit, as: 'photos', limit: 1 },
-              { model: CategorieProduit, as: 'categorie' }
+              { model: TypeProduit, as: 'type', required: false, include: [{ model: CategorieProduit, as: 'categorie' }], where: categorie ? { id_categorie: categorie } : undefined }
             ]
           },
           {
             model: Service,
             as: 'service',
             required: false,
-            where: categorie ? { categorie_id: categorie } : undefined,
             include: [
               { model: PhotoService, as: 'photos', limit: 1 },
-              { model: CategorieService, as: 'categorie' }
+              { model: TypeService, as: 'type', required: false, include: [{ model: CategorieService, as: 'categorie' }], where: categorie ? { id_categorie: categorie } : undefined }
             ]
           }
         ],
@@ -343,9 +335,6 @@ class AccueilService {
     }
   }
 
-  /**
-   * Formateur privé pour harmoniser les données d'annonce
-   */
   _formaterAnnonceAccueil(annonce) {
     if (!annonce) return null;
 
@@ -358,16 +347,15 @@ class AccueilService {
       description: annonce.description,
       prix: annonce.prix,
       type: estProduit ? 'Produit' : 'Service',
-      type_annonce: annonce.type_annonce,
       statut: annonce.statut_annonce,
       date_publication: annonce.date_publication,
-      nombre_vues: annonce.nombre_vues || 0,
-      image: item?.photos?.[0]?.url_photo || null,
-      categorie: item?.categorie?.nom_categorie || 'Sans catégorie',
+      
+      image: item?.photos?.[0]?.url || null,
+      categorie: item?.type?.categorie?.nom_categorie || 'Sans catégorie',
       auteur: {
-        id: annonce.auteurAnnonce?.id,
-        nom: `${annonce.auteurAnnonce?.prenom || ''} ${annonce.auteurAnnonce?.nom || ''}`.trim(),
-        ville: annonce.auteurAnnonce?.adresses?.[0]?.ville || 'Non spécifié'
+        id: annonce.vendeur?.id,
+        nom: `${annonce.vendeur?.prenom || ''} ${annonce.vendeur?.nom || ''}`.trim(),
+        ville: annonce.vendeur?.adresseFixe?.ville || 'Non spécifié'
       }
     };
   }

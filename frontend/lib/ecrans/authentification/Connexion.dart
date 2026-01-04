@@ -144,10 +144,8 @@ class _ConnexionState extends State<Connexion> {
                   child: const Text("Pas encore de compte ? S'inscrire"),
                 ),
 
-                // Optionnel: Bouton Mot de passe oublié
                 TextButton(
                   onPressed: () {
-                    // Logique pour mot de passe oublié
                   },
                   child: const Text("Mot de passe oublié ?"),
                 ),

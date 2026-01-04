@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:http_parser/http_parser.dart'; 
 import 'package:http/http.dart' as http;
-import '../models/Annonce.dart';
-import '../models/Produit.dart';
-import '../models/Service.dart';
-import 'authService.dart';
+import '../../models/Annonce.dart';
+import '../../models/Produit.dart';
+import '../../models/Service.dart';
+import '../authService.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/serviceService.dart';
+import '../../services/annonce/serviceService.dart';
 import '../../models/Service.dart';
 import '../PageCatalogue.dart';
 import 'DetailsService.dart';

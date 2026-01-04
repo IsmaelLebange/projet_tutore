@@ -41,7 +41,7 @@ class UserGate extends StatelessWidget {
             boutonTexte: "Se déconnecter",
             onPressed: () async {
               final auth = AuthService();
-              final prefs = await auth.logout(); // à faire si tu veux un logout
+              final prefs = await auth.logout(context); // à faire si tu veux un logout
               Navigator.pushReplacementNamed(context, '/connexion');
             },
           );

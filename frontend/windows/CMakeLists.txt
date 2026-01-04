@@ -1,6 +1,10 @@
-# Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-project(frontend LANGUAGES CXX)
+
+# Force le générateur CMake pour Visual Studio 2022
+# Cette instruction DOIT être avant project()
+set(CMAKE_GENERATOR "Visual Studio 17 2022" CACHE INTERNAL "" FORCE)
+
+project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.

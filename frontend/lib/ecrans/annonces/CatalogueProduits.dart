@@ -1,6 +1,6 @@
 // ...existing code...
 import 'package:flutter/material.dart';
-import '../../services/produitService.dart';
+import '../../services/annonce/produitService.dart';
 import '../../models/Produit.dart';
 import '../PageCatalogue.dart';
 import 'DetailsProduit.dart';
@@ -93,4 +93,3 @@ class _CatalogueProduitsState extends State<CatalogueProduits> {
     );
   }
 }
-// ...existing code...

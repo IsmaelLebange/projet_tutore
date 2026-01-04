@@ -26,13 +26,13 @@ class Produit extends Annonce {
   factory Produit.fromJson(Map<String, dynamic> json) {
     return Produit(
       id: json['id'] as int?,
-      titre: json['titre'] ?? '', // ✅ default vide
-      description: json['description'] ?? '', // ✅ default vide
-      typeProduit: json['typeProduit'] ?? 'Non défini', // ✅ default
-      categorieProduit: json['categorieProduit'] ?? 'Non définie', // ✅ default
-      prix: (json['prix'] as num?)?.toDouble() ?? 0.0, // ✅ safe cast
-      image: json['image'] ?? '', // ✅ default vide
-      etat: json['etat'], // nullable, OK
+      titre: json['titre'] ?? '', 
+      description: json['description'] ?? '',
+      typeProduit: json['typeProduit'] ?? 'Non défini', 
+      categorieProduit: json['categorieProduit'] ?? 'Non définie', 
+      prix: (json['prix'] as num?)?.toDouble() ?? 0.0,
+      image: json['image'] ?? '',
+      etat: json['etat'], 
     );
   }
 

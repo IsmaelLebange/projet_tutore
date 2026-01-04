@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/panierService.dart';
-import '../services/produitService.dart';
-import '../services/serviceService.dart';
+import '../services/annonce/produitService.dart';
+import '../services/annonce/serviceService.dart';
 
 class ListeAnnonces extends StatelessWidget {
   final List<Map<String, dynamic>> annonces;

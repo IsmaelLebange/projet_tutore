@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ChampRecherche extends StatelessWidget {
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController? controller;
+  final VoidCallback? recherche;
+
+  const ChampRecherche({super.key, this.controller, this.recherche});
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +13,9 @@ class ChampRecherche extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: controller,
+            onSubmitted: (_) {
+              if (recherche != null) recherche!();
+            },
             decoration: InputDecoration(
               hintText: 'Rechercher un produit ou service',
               border: OutlineInputBorder(),
@@ -17,12 +23,7 @@ class ChampRecherche extends StatelessWidget {
           ),
         ),
         SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: () {
-            print('Recherche : ${controller.text}');
-          },
-          child: Icon(Icons.search),
-        ),
+        ElevatedButton(onPressed: recherche, child: Icon(Icons.search)),
       ],
     );
   }

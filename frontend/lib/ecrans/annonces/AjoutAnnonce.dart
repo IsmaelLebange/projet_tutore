@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'dart:io';
-import '../../services/annonceService.dart';
+import '../../services/annonce/annonceService.dart';
 import '../../models/Produit.dart';
 import '../../models/Service.dart';
 import '../../composants/BarreRetour.dart';

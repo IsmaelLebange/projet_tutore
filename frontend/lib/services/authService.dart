@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/utilisateur.dart';
@@ -161,15 +162,15 @@ class AuthService {
   }
 
   // Déconnexion
-  Future<bool> logout() async {
+  Future<bool> logout(BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_tokenKey); // ⚠️ CORRECTION: bonne clé
       await prefs.remove(_roleKey);
-      print('🔒 Déconnexion : token & rôle supprimés');
+      Navigator.pushReplacementNamed(context, '/connexion');
       return true;
     } catch (e) {
-      print('❌ Erreur logout: $e');
+      
       return false;
     }
   }

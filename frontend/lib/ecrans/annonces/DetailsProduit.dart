@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/Produit.dart';
-import '../../services/produitService.dart';
+import '../../services/annonce/produitService.dart';
 import '../../services/panierService.dart';
 import '../../composants/BarreRetour.dart';
 

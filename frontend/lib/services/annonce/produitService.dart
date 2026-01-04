@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../models/Produit.dart';
+import '../authService.dart';
 import 'package:flutter/foundation.dart';
-import '../models/Service.dart';
-import 'authService.dart';
 
-class ServiceService {
+class ProduitService {
   static const String baseUrl = kIsWeb
-      ? 'http://localhost:3000/api/services'
-      : 'http://10.0.2.2:3000/api/services';
+      ? 'http://localhost:3000/api/produits'
+      : 'http://10.0.2.2:3000/api/produits';
   
   final AuthService _authService = AuthService();
 
-  // ✅ Méthode centralisée pour construire URL image
+  // ✅ Centraliser la construction d'URL image
   static String buildImageUrl(String url) {
     if (url.isEmpty) return '';
     if (url.startsWith('http')) return url;
@@ -26,9 +26,8 @@ class ServiceService {
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
-  
 
-  Future<List<Service>> obtenirServices({
+  Future<List<Produit>> obtenirProduits({
     int page = 1,
     int limit = 20,
     String? categorie,
@@ -36,7 +35,6 @@ class ServiceService {
     double? prixMin,
     double? prixMax,
     String? recherche,
-    bool? disponibilite,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -47,7 +45,6 @@ class ServiceService {
         if (prixMin != null) 'prixMin': prixMin.toString(),
         if (prixMax != null) 'prixMax': prixMax.toString(),
         if (recherche != null) 'recherche': recherche,
-        if (disponibilite != null) 'disponibilite': disponibilite.toString(),
       };
 
       final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
@@ -57,19 +54,19 @@ class ServiceService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final servicesJson = data['services'] as List;
+        final produitsJson = data['produits'] as List;
         
-        return servicesJson.map((json) => Service.fromJson(json)).toList();
+        return produitsJson.map((json) => Produit.fromJson(json)).toList();
       } else {
         throw Exception('Erreur ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      print('❌ Erreur obtenirServices: $e');
+      print('❌ Erreur obtenirProduits: $e');
       rethrow;
     }
   }
 
-  Future<Service> obtenirServiceParId(int id) async {
+  Future<Produit> obtenirProduitParId(int id) async {
     try {
       final uri = Uri.parse('$baseUrl/$id');
       print('🔍 GET $uri');
@@ -78,14 +75,14 @@ class ServiceService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return Service.fromJson(data);
+        return Produit.fromJson(data);
       } else if (response.statusCode == 404) {
-        throw Exception('Service introuvable');
+        throw Exception('Produit introuvable');
       } else {
         throw Exception('Erreur ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      print('❌ Erreur obtenirServiceParId: $e');
+      print('❌ Erreur obtenirProduitParId: $e');
       rethrow;
     }
   }

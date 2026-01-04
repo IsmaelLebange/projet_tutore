@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/Annonce.dart';
 import '../../models/Produit.dart';
 import '../../models/Service.dart';
-import '../../services/annonceService.dart';
+import '../../services/annonce/annonceService.dart';
 import '../../composants/BarrePrincipale.dart';
 import '../../composants/BoutonPrincipal.dart';
 import '../../composants/UserGate.dart';
